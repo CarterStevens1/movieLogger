@@ -1,12 +1,26 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Models\User;
+
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
 
 it('displays login button if not logged in', function () {
 
     // Act & Assert
-    // go to home check okay and see log in text and see if you can go to the login url
     $this->get(route('home'))
         ->assertOk()
         ->assertSeeText('Log In');
+});
+
+it('displays logout button if authenticated', function () {
+
+    // Act & Assert
+    $user = User::factory()->create();
+
+    $this->actingAs($user)
+        ->get(route('home'))
+        ->assertOk()
+        ->assertSeeText('Log Out');;
 });

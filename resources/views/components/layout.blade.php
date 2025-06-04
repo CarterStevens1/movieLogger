@@ -31,7 +31,9 @@
                         @csrf
                         @method('POST')
                         <button>Log Out</button>
+                    </form>
                 </div>
+
             @endauth
 
             @guest
