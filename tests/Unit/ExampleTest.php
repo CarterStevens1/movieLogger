@@ -14,3 +14,8 @@ class ExampleTest extends TestCase
         $this->assertTrue(true);
     }
 }
+
+
+test('example', function () {
+    expect(true)->toBeTrue();
+});
