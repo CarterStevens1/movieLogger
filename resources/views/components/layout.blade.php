@@ -18,15 +18,16 @@
         <nav class="flex justify-between items-center py-4 border-b border-white/10">
             <div>
                 <a href="{{ url('/') }}">
-                    <img src="{{ Vite::asset('resources/images/pixel-positions-laravel.svg') }}" alt="logo">
+                    <a href="{{ url('/') }}">Home</a>
                 </a>
             </div>
             <div class="space-x-6 font-bold">
-                <a href="{{ url('/jobs') }}">Boards</a>
+                <a href="{{ url('/my-boards') }}">Boards</a>
             </div>
 
             @auth
                 <div class="space-x-6 font-bold flex">
+                    <a href="{{ url('/edit') }}">Edit</a>
                     <form method="POST" action="/logout">
                         @csrf
                         @method('POST')
