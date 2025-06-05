@@ -33,3 +33,15 @@
         - Can unassign a board from multiple users
 
     ### Can make a board public or private
+
+<!--
+Create a table that can add rows and columns
+    - Add ability to add a top level column which can have any label (e.g A - B - C)
+    - Add ability to add a row to the whole column which can have any label
+      - For each column add equal amount of spanning row boxes
+    - Allow row to be deleted (with confirmation if there are columns in it)
+      - If row is deleted, delete all from the full row (Horizontal association)
+    - Allow column to be deleted (with confirmation if there are rows in it)
+      - If column is deleted, delete all associated rows (Vertical association)
+    - Sort rows vertically by A-Z
+-->
