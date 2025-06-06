@@ -44,4 +44,6 @@ Create a table that can add rows and columns
     - Allow column to be deleted (with confirmation if there are rows in it)
       - If column is deleted, delete all associated rows (Vertical association)
     - Sort rows vertically by A-Z
+    - Add ability to create tags (TBD)
+      - Create them on board creation and allow users to select them during movie add
 -->
