@@ -29,10 +29,8 @@ it('displays logout button if authenticated', function () {
 
 it('logs in user successfully', function () {
 
-    User::factory()->create(
+    $tempUser = User::factory()->create(
         [
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
             'password' => 'password'
         ]
     );
@@ -43,7 +41,7 @@ it('logs in user successfully', function () {
         ->assertSeeText('Log In');
 
     $this->post(route('login'), [
-        'email' => 'john@example.com',
+        'email' => $tempUser->email,
         'password' => 'password',
     ])->assertRedirect('/');
 
@@ -52,20 +50,14 @@ it('logs in user successfully', function () {
 
 it('fails to log in user with invalid credentials', function () {
 
-    User::factory()->create(
-        [
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
-            'password' => 'password'
-        ]
-    );
+    $tempUser = User::factory()->create();
     // Prefill the form with valid data
     $this->get(route('login'))
         ->assertOk()
         ->assertSeeText('Log In');
 
     $this->post(route('login'), [
-        'email' => 'john@example.com',
+        'email' => $tempUser->email,
         'password' => 'PassworD',
     ])->assertRedirect(route('login'));
 
@@ -74,15 +66,13 @@ it('fails to log in user with invalid credentials', function () {
 
 
 it('edits user successfully', function () {
-    $user = User::factory()->create(
+    $tempUser = User::factory()->create(
         [
-            'name' => 'John Doe',
-            'email' => 'john@example.com',
             'password' => 'password'
         ]
     );
 
-    $this->actingAs($user)
+    $this->actingAs($tempUser)
         ->get(route('home'))
         ->assertOk()
         ->assertSeeText('Edit');
@@ -94,7 +84,7 @@ it('edits user successfully', function () {
         'password_confirmation' => 'newpassword',
     ])->assertSessionHas('success', 'Password updated successfully.');
 
-    $user->refresh();
+    $tempUser->refresh();
 
-    expect(Hash::check('newpassword', $user->password))->toBeTrue();
+    expect(Hash::check('newpassword', $tempUser->password))->toBeTrue();
 });
