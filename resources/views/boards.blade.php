@@ -1,6 +1,18 @@
 <x-layout>
     <x-page-heading class="text-center">My Boards</x-page-heading>
+    <hr class="w-full border-t border-white/10">
 
+    <section class="pt-10">
+        <h2 class="text-2xl font-bold">My Created Boards</h2>
+
+        <div class="pt-10 grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6">
+            <x-board-card />
+            <x-board-card />
+            <x-board-card />
+            <x-board-card />
+
+        </div>
+    </section>
     {{-- Add ability to view all boards you've created --}}
     {{-- Ability to share a board with another user --}}
     {{-- Ability to delete a board --}}
@@ -9,5 +21,14 @@
 
 
     {{-- OPTIONAL: Add ability to view shared boards with you --}}
+    <section class="pt-10">
+        <h2 class="text-2xl font-bold">Boards shared with me</h2>
+        <div class="pt-10 grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6">
+            <x-board-card />
+            <x-board-card />
+            <x-board-card />
+            <x-board-card />
 
+        </div>
+    </section>
 </x-layout>

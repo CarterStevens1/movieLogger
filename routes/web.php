@@ -5,7 +5,8 @@ use App\Http\Controllers\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
-Route::view('/my-board/movies', 'board')->name('board');
+Route::view('/my-boards/movies', 'board')->name('board');
+Route::view('/my-boards/', 'boards')->name('boards');
 
 
 Route::middleware('guest')->group(function () {
