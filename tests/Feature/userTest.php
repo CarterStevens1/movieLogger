@@ -2,29 +2,20 @@
 
 use App\Models\User;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
-uses(RefreshDatabase::class);
-
 it('displays login button if not logged in', function () {
-
     // Act & Assert
-    $this->get(route('home'))
-        ->assertOk()
-        ->assertSeeText('Log In');
+    // Go to route and check text
+    checkRoute('home', 'Log In');
 });
 
 it('displays logout button if authenticated', function () {
-
     // Act & Assert
-    $user = User::factory()->create();
-
-    $this->actingAs($user)
-        ->get(route('home'))
-        ->assertOk()
-        ->assertSeeText('Log Out');
+    login();
+    // Go to route and check text
+    checkRoute('home', 'Log Out');
 });
 
 it('logs in user successfully', function () {
@@ -34,11 +25,6 @@ it('logs in user successfully', function () {
             'password' => 'password'
         ]
     );
-
-    // Prefill the form with valid data
-    $this->get(route('login'))
-        ->assertOk()
-        ->assertSeeText('Log In');
 
     $this->post(route('login'), [
         'email' => $tempUser->email,
@@ -51,10 +37,8 @@ it('logs in user successfully', function () {
 it('fails to log in user with invalid credentials', function () {
 
     $tempUser = User::factory()->create();
-    // Prefill the form with valid data
-    $this->get(route('login'))
-        ->assertOk()
-        ->assertSeeText('Log In');
+    // Go to route and check text
+    checkRoute('login', 'Log In');
 
     $this->post(route('login'), [
         'email' => $tempUser->email,
@@ -66,16 +50,14 @@ it('fails to log in user with invalid credentials', function () {
 
 
 it('edits user successfully', function () {
-    $tempUser = User::factory()->create(
+
+    login(User::factory()->create(
         [
             'password' => 'password'
         ]
-    );
-
-    $this->actingAs($tempUser)
-        ->get(route('home'))
-        ->assertOk()
-        ->assertSeeText('Edit');
+    ));
+    // Go to route and check text
+    checkRoute('home', 'Edit');
 
     // Change password and submit check success message to see success
     $this->post(route('update'), [
@@ -84,7 +66,7 @@ it('edits user successfully', function () {
         'password_confirmation' => 'newpassword',
     ])->assertSessionHas('success', 'Password updated successfully.');
 
-    $tempUser->refresh();
+    Auth::user()->refresh();
 
-    expect(Hash::check('newpassword', $tempUser->password))->toBeTrue();
+    expect(Hash::check('newpassword', Auth::user()->password))->toBeTrue();
 });
