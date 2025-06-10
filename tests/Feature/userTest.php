@@ -8,14 +8,14 @@ use Illuminate\Support\Facades\Hash;
 it('displays login button if not logged in', function () {
     // Act & Assert
     // Go to route and check text
-    checkRoute('home', 'Log In');
+    getRouteCheckText('home', 'Log In');
 });
 
 it('displays logout button if authenticated', function () {
     // Act & Assert
     login();
     // Go to route and check text
-    checkRoute('home', 'Log Out');
+    getRouteCheckText('home', 'Log Out');
 });
 
 it('logs in user successfully', function () {
@@ -38,7 +38,7 @@ it('fails to log in user with invalid credentials', function () {
 
     $tempUser = User::factory()->create();
     // Go to route and check text
-    checkRoute('login', 'Log In');
+    getRouteCheckText('login', 'Log In');
 
     $this->post(route('login'), [
         'email' => $tempUser->email,
@@ -57,7 +57,7 @@ it('edits user successfully', function () {
         ]
     ));
     // Go to route and check text
-    checkRoute('home', 'Edit');
+    getRouteCheckText('home', 'Edit');
 
     // Change password and submit check success message to see success
     $this->post(route('update'), [

@@ -48,7 +48,7 @@ function login($user = null)
     return test()->actingAs($user ?? User::factory()->create());
 }
 
-function checkRoute($route, $checkText = null)
+function getRouteCheckText($route, $checkText = null)
 {
     return test()
         ->get(route($route))
