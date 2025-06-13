@@ -57,17 +57,17 @@ it('can edit a board assigned to a user', function () {
 // it('can share a board with another user', function () {
 // });
 
-it('can add columns and rows to a board', function () {
+// it('can add columns and rows to a board', function () {
 
-    // Create a user
-    $user = User::factory()->create();
-    // Authenticate the user
-    login($user);
-    // Create a board
-    $board = Board::factory()->create();
-    // Assign the board to the user
-    $board->user()->associate($user);
-    // Create a column and add it to the board  
-    // Create a row and add it to the board
-    // Assert that the column and row were added
-});
+//     // Create a user
+//     $user = User::factory()->create();
+//     // Authenticate the user
+//     login($user);
+//     // Create a board
+//     $board = Board::factory()->create();
+//     // Assign the board to the user
+//     $board->user()->associate($user);
+//     // Create a column and add it to the board  
+//     // Create a row and add it to the board
+//     // Assert that the column and row were added
+// });
