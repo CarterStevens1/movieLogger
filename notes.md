@@ -49,3 +49,9 @@ Create a table that can add rows and columns
       - Create them on board creation and allow users to select them during movie add
     -For each row or column added save and retain aswell as any content added save and retain.
 -->
+
+<!-- 
+A table that can have rows and columns
+I need a Column database table - Has many cells
+a Row database table - Has many cells
+a Cell database table - belongs to column and row
