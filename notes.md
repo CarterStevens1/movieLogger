@@ -27,10 +27,17 @@
         - Can give a board a title/name
 
     ### Can Assign "boards" to a user
-        - Can assign a board to a user
-        - Can unassign a board from a user
+        - Can assign a board to a user X
+        - Can delete a board
         - Can assign a board to multiple users
+          -- New joining table between users and boards - Get board ID and all the shared user ID's
+          --- 3 columns (id_user_id, board_id, shared_user_id)
+          1_1_1_2
+          1_1_1_3
+          --- Add constrain if board is already shared with the user
+          (Model?, Migration) (Check documentation for how to create joiner table)
         - Can unassign a board from multiple users
+          -- Delete row inside the new joining table
 
     ### Can make a board public or private
 
