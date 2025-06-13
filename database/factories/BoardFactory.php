@@ -19,8 +19,10 @@ class BoardFactory extends Factory
     {
         // Add faker random string to name
         return [
-            'name' => fake()->unique()->word,
             'user_id' => User::factory(),
+            'name' => fake()->unique()->word,
+            'description' => fake()->paragraph,
+            'tags' => fake()->words(3, true),
             //
         ];
     }

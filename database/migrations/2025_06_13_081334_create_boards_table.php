@@ -14,8 +14,10 @@ return new class extends Migration
     {
         Schema::create('boards', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class);
+            $table->integer('user_id')->foreignIdFor(User::class);
             $table->string('name');
+            $table->string('description')->nullable();
+            $table->string('tags')->nullable();
             $table->timestamps();
         });
     }

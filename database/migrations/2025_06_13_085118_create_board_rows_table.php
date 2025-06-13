@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('board_rows', function (Blueprint $table) {
             $table->id();
+            $table->integer('order');
             $table->timestamps();
         });
     }

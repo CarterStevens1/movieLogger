@@ -1,6 +1,11 @@
 <x-layout>
-    <x-page-heading class="text-center">My Boards</x-page-heading>
+    <div class="flex justify-between items-center pb-8">
+        <x-page-heading class="text-center mb-0!">My Boards</x-page-heading>
+        <x-button href="{{ Route('boards.create') }}" class="mx-0! ms-auto!">Create a new board</x-button>
+    </div>
     <hr class="w-full border-t border-white/10">
+
+
 
     <section class="pt-10">
         <h2 class="text-2xl font-bold">My Created Boards</h2>
