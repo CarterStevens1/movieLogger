@@ -21,11 +21,11 @@
                     <a href="{{ url('/') }}">Home</a>
                 </a>
             </div>
-            <div class="space-x-6 font-bold">
-                <a href="{{ url('/my-boards') }}">Boards</a>
-            </div>
-
             @auth
+                <div class="space-x-6 font-bold">
+                    <a href="{{ url('/my-boards') }}">Boards</a>
+                </div>
+
                 <div class="space-x-6 font-bold flex">
                     <a href="{{ url('/edit') }}">Edit</a>
                     <form method="POST" action="/logout">
