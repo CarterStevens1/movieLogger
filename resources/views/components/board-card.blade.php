@@ -13,7 +13,7 @@
                 {{ $board->name }}
             </h3>
             <p>{{ $board->description }}</p>
-            <div class="self-start text-sm">Created by: XXX</div>
+            <div class="self-start text-sm pt-4">Created by: XXX</div>
         </div>
     </x-panel>
 </a>
