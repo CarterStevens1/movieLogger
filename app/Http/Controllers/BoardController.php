@@ -15,7 +15,11 @@ class BoardController extends Controller
      */
     public function index()
     {
-        //
+        $boards = Board::where('user_id', Auth::user()->id)->get();
+
+        return view('boards', [
+            'boards' => $boards,
+        ]);
     }
 
 

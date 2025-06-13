@@ -11,10 +11,10 @@
         <h2 class="text-2xl font-bold">My Created Boards</h2>
 
         <div class="pt-10 grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6">
-            <x-board-card />
-            <x-board-card />
-            <x-board-card />
-            <x-board-card />
+            {{-- Display all boards you've created grab the user id and check for all boards that user has created --}}
+            @foreach ($boards as $board)
+                <x-board-card :board="$board" />
+            @endforeach
 
         </div>
     </section>
@@ -29,10 +29,10 @@
     <section class="pt-10">
         <h2 class="text-2xl font-bold">Boards shared with me</h2>
         <div class="pt-10 grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6">
+            {{-- <x-board-card />
             <x-board-card />
             <x-board-card />
-            <x-board-card />
-            <x-board-card />
+            <x-board-card /> --}}
 
         </div>
     </section>
