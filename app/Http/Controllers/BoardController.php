@@ -64,7 +64,8 @@ class BoardController extends Controller
     {
         // Edit user password
         $board = Board::find($id);
-        return view('boards.edit', compact('board'));
+        // Return view with success message
+        return view('boards.edit', compact('board'))->with('success', 'Board updated successfully.');
     }
 
     /**
@@ -93,10 +94,17 @@ class BoardController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $board = Board::find($id);
+        $board->delete();
+        return redirect()->route('boards');
     }
 
-    public function share(string $id) {}
+    public function share(string $id)
+    {
+        $board = Board::find($id);
+        $board->share(Auth::user()->id);
+        return redirect()->route('boards.show', $board);
+    }
 
     public function unshare(string $id) {}
 }

@@ -18,6 +18,7 @@ Route::post('boards/create', [BoardController::class, 'store'])->middleware('aut
 Route::get('/my-boards/{board}', [BoardController::class, 'show'])->middleware(['checkUserID', 'auth'])->name('boards.show');
 Route::get('/my-boards/{board}/edit', [BoardController::class, 'edit'])->middleware(['checkUserID', 'auth'])->name('boards.edit');
 Route::post('/my-boards/{board}/edit', [BoardController::class, 'update'])->middleware(['checkUserID', 'auth'])->name('boards.update');
+Route::post('/my-boards/{board}/delete', [BoardController::class, 'destroy'])->middleware(['checkUserID', 'auth'])->name('boards.destroy');
 
 
 
