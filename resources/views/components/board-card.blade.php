@@ -1,5 +1,9 @@
 @props(['board'])
 
+@php
+    $user = \App\Models\User::find($board->user_id);
+@endphp
+
 <a href="/my-boards/{{ $board->id }}">
     <x-panel class="flex flex-col gap-x-6 p-6">
         <div class="flex items-center mt-auto flex-wrap gap-3">
@@ -13,7 +17,7 @@
                 {{ $board->name }}
             </h3>
             <p>{{ $board->description }}</p>
-            <div class="self-start text-sm pt-4">Created by: XXX</div>
+            <div class="self-start text-sm pt-4">Created by: {{ $user->name }}</div>
         </div>
     </x-panel>
 </a>
