@@ -1,7 +1,11 @@
  @props(['tag', 'size' => 'base'])
 
  @php
-     $classes = 'rounded-xl font-bold transition-colors duration-300';
+
+     $colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500'];
+     $randomColor = $colors[array_rand($colors)];
+     $classes = $randomColor . ' text-white rounded-xl font-bold transition-colors duration-300';
+
      if ($size === 'base') {
          $classes .= ' text-sm px-5 py-1';
      } elseif ($size === 'small') {
@@ -9,4 +13,4 @@
      }
  @endphp
 
- <span {{ $attributes(['class' => $classes]) }}>{{ $slot }}</span>
+ <span {{ $attributes(['class' => $classes]) }}>{{ $tag }}</span>

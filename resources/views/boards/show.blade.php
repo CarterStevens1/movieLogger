@@ -24,9 +24,13 @@
             <h2 class="text-2xl font-bold text-center">Current board tags</h2>
             <div class="flex flex-wrap justify-center">
                 <div class="flex items-center gap-6 pt-6">
-                    <x-tag size="small" class="bg-amber-500 text-white"> 101 Movies</x-tag>
-                    <x-tag size="small" class="bg-amber-500 text-white"> 101 Movies</x-tag>
-                    <x-tag size="small" class="bg-amber-500 text-white"> 101 Movies</x-tag>
+                    @php
+                        $tagsArray = explode(',', $board->tags);
+                    @endphp
+                    @foreach ($tagsArray as $tag)
+                        <x-tag :tag="$tag" class="rounded-2xl" />
+                    @endforeach
+
                 </div>
             </div>
         </div>

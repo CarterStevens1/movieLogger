@@ -39,7 +39,6 @@ class BoardController extends Controller
             'tags' => ['nullable'],
         ]);
 
-
         $board = Board::create($boardAtrributes);
 
         return redirect()->route('boards.show', Board::find($board->id));
