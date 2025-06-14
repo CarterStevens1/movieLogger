@@ -1,7 +1,11 @@
 @props(['board'])
 
 <x-layout>
-    <x-page-heading>{{ $board->name }}</x-page-heading>
+    <div class="flex justify-between items-center pb-8">
+        <x-page-heading class="text-center mb-0!">{{ $board->name }}</x-page-heading>
+        <x-button href="{{ url('my-boards/' . $board->id . '/edit') }}" class="mx-0! ms-auto!">Edit board</x-button>
+    </div>
+    <hr class="w-full border-t border-white/10">
 
 
     {{-- Add ability to create tags and delete tags --}}

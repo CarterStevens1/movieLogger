@@ -60,12 +60,33 @@ class BoardController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit() {}
+    public function edit(string $id)
+    {
+        // Edit user password
+        $board = Board::find($id);
+        return view('boards.edit', compact('board'));
+    }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request) {}
+    public function update(Request $request, string $id)
+    {
+        // Find board ID
+        $request->validate([
+            'name' => ['required'],
+            'description' => ['required'],
+            'tags' => ['nullable'],
+        ]);
+        $board = Board::find($id);
+
+        $board->update([
+            'name' => $request->name,
+            'description' => $request->description,
+            'tags' => $request->tags,
+        ]);
+        return redirect()->route('boards.show', $board);
+    }
 
     /**
      * Remove the specified resource from storage.
@@ -74,4 +95,8 @@ class BoardController extends Controller
     {
         //
     }
+
+    public function share(string $id) {}
+
+    public function unshare(string $id) {}
 }

@@ -16,6 +16,10 @@ Route::post('boards/create', [BoardController::class, 'store'])->middleware('aut
 
 // Check if ID of user is the same as the user_id of the board
 Route::get('/my-boards/{board}', [BoardController::class, 'show'])->middleware(['checkUserID', 'auth'])->name('boards.show');
+Route::get('/my-boards/{board}/edit', [BoardController::class, 'edit'])->middleware(['checkUserID', 'auth'])->name('boards.edit');
+Route::post('/my-boards/{board}/edit', [BoardController::class, 'update'])->middleware(['checkUserID', 'auth'])->name('boards.update');
+
+
 
 
 Route::middleware('guest')->group(function () {

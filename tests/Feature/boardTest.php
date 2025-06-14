@@ -3,6 +3,7 @@
 use App\Models\Board;
 use App\Models\User;
 
+
 it('can create a board', function () {
     Board::factory()->create();
     // Assert that the board was created
@@ -15,11 +16,11 @@ it('can create a board and assign it to a user', function () {
     // Authenticate the user
     login($user);
     // Create a board
-    $board = Board::factory()->create();
-    // Assign the board to the user
-    $board->user()->associate($user);
+    $board = Board::factory()->create([
+        'user_id' => $user->id,
+    ]);
     // Assert that the board was assigned to the user
-    expect($board->user->id)->toBe($user->id);
+    expect($board->user_id)->toBe($user->id);
 });
 
 it('can delete a board assigned to a user', function () {
@@ -28,9 +29,9 @@ it('can delete a board assigned to a user', function () {
     // Authenticate the user
     login($user);
     // Create a board
-    $board = Board::factory()->create();
-    // Assign the board to the user
-    $board->user()->associate($user);
+    $board = Board::factory()->create([
+        'user_id' => $user->id,
+    ]);
     // Delete the board
     $board->delete();
     // Assert that the board was deleted
@@ -44,9 +45,9 @@ it('can edit a board assigned to a user', function () {
     // Authenticate the user
     login($user);
     // Create a board
-    $board = Board::factory()->create();
-    // Assign the board to the user
-    $board->user()->associate($user);
+    $board = Board::factory()->create([
+        'user_id' => $user->id,
+    ]);
     // Edit the board
     $board->name = 'New Name';
     $board->save();
