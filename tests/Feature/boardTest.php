@@ -55,8 +55,54 @@ it('can edit a board assigned to a user', function () {
     expect($board->name)->toBe('New Name');
 });
 
-// it('can share a board with another user', function () {
-// });
+it('can share a board with another user', function () {
+    // Create users
+    $user = User::factory()->create();
+    $user2 = User::factory()->create();
+
+    // Authenticate the user
+    login($user);
+
+    // Create a board
+    $board = Board::factory()->create([
+        'user_id' => $user->id,
+    ]);
+
+    // Share the board with the user2
+    $board->sharedUsers()->syncWithoutDetaching([$user2->id]);
+
+    // Assert that the board was shared with the user2
+    expect($board->sharedUsers()->where('user_id', $user2->id)->exists())->toBeTrue();
+});
+
+it('can unshare a board with another user', function () {
+    // Create users
+    $user = User::factory()->create();
+    $user2 = User::factory()->create();
+
+    // Authenticate the user
+    login($user);
+
+    // Create a board
+    $board = Board::factory()->create([
+        'user_id' => $user->id,
+    ]);
+
+    // Share the board with the user2
+    $board->sharedUsers()->syncWithoutDetaching([$user2->id]);
+
+    // Assert that the board was shared with the user2
+    expect($board->sharedUsers()->where('user_id', $user2->id)->exists())->toBeTrue();
+
+    // Unshare the board with user2
+    $board->sharedUsers()->detach($user2->id);
+
+    // Refresh board to ensure relationship is updated
+    $board->refresh();
+
+    // Assert that the board is no longer shared with user2
+    expect($board->sharedUsers()->where('user_id', $user2->id)->exists())->toBeFalse();
+});
 
 // it('can add columns and rows to a board', function () {
 
