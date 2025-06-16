@@ -93,6 +93,8 @@ class RegisteredUserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        // Delete the user
+        $user = User::find($id);
+        $user->delete();
     }
 }
