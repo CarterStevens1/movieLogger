@@ -15,7 +15,7 @@ class BoardController extends Controller
      */
     public function index()
     {
-        $boards = Board::where('user_id', Auth::user()->id)->get();
+        $boards = Board::where('user_id', Auth::user()->id)->latest()->get();
         $user = Auth::user();
         $sharedBoards = $user->sharedBoards()->get();
 
@@ -52,8 +52,6 @@ class BoardController extends Controller
     public function show(string $id)
     {
         // Check if user is the same as the user_id of the board
-
-
         $board = Board::find($id);
         return view('boards.show', compact('board'));
     }

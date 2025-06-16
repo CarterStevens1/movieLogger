@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..600;1,100..600&display=swap"
         rel="stylesheet">
-    <title>Movie Logger</title>
+    <title>Board Tracking</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -31,7 +31,7 @@
                     <form method="POST" action="/logout">
                         @csrf
                         @method('POST')
-                        <button>Log Out</button>
+                        <button class="cursor-pointer">Log Out</button>
                     </form>
                 </div>
 

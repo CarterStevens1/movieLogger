@@ -4,9 +4,8 @@
     <div class="flex justify-between items-center pb-8">
         <x-page-heading class="text-center mb-0!">{{ $board->name }}</x-page-heading>
         <div>
-            <x-button href="{{ url('my-boards/' . $board->id . '/edit') }}" class="mx-0! ms-auto!">Edit board</x-button>
             @if (Auth::user()->id === $board->user_id)
-                <x-button href="{{ url('my-boards/' . $board->id . '/unshare') }}" class="mx-0! ms-auto!">Unshare
+                <x-button href="{{ url('my-boards/' . $board->id . '/edit') }}" class="mx-0! ms-auto!">Edit
                     board</x-button>
             @endif
         </div>
