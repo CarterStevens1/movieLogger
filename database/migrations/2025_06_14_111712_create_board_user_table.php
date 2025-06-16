@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('board_user', function (Blueprint $table) {
             $table->id();
+            $table->integer('board_owner_id')->foreignIdFor(Board::class)->constrained()->onDelete('cascade');
             $table->foreignIdFor(Board::class)->constrained()->onDelete('cascade');
             $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
             $table->timestamps();

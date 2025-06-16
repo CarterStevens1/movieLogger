@@ -69,7 +69,9 @@ it('can share a board with another user', function () {
     ]);
 
     // Share the board with the user2
-    $board->sharedUsers()->syncWithoutDetaching([$user2->id]);
+    $board->sharedUsers()->attach($user2->id, [
+        'board_owner_id' => $board->user_id,
+    ]);
 
     // Assert that the board was shared with the user2
     expect($board->sharedUsers()->where('user_id', $user2->id)->exists())->toBeTrue();
@@ -89,7 +91,9 @@ it('can unshare a board with another user', function () {
     ]);
 
     // Share the board with the user2
-    $board->sharedUsers()->syncWithoutDetaching([$user2->id]);
+    $board->sharedUsers()->attach($user2->id, [
+        'board_owner_id' => $board->user_id,
+    ]);
 
     // Assert that the board was shared with the user2
     expect($board->sharedUsers()->where('user_id', $user2->id)->exists())->toBeTrue();

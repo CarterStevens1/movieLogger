@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Board;
 use App\Models\User;
+use Error;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -100,20 +101,24 @@ class BoardController extends Controller
     public function share(Request $request, $boardId)
     {
         $request->validate([
-            'email' => 'required|email|exists:users,email',
+            'email' => 'required|email',
         ]);
-        $user = User::where('email', $request->email)->first();
-
+        $user = User::where('email', strtolower($request->email))->first();
         if (!$user) {
-            return response()->json(['message' => 'User not found.'], 404);
+            return back()->with('error', 'User does not exist.');
         }
 
         $board = Board::findOrFail($boardId);
+        if ($board->sharedUsers()->where('user_id', $user->id)->exists()) {
+            return back()->with('error', 'Board already shared with user.');
+        }
         // Attach the user to the board (many-to-many) without duplicates
-        $board->sharedUsers()->syncWithoutDetaching([$user->id]);
+        $board->sharedUsers()->attach($user->id, [
+            'board_owner_id' => $board->user_id,
+        ]);
 
         // Return view with success message
-        return view('boards.edit', compact('board'))->with('success', 'Board shared with user successfully.');
+        return  back()->with('success', 'Board shared with user successfully.');
     }
 
     public function unshare(string $id) {}

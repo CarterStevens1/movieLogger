@@ -34,23 +34,23 @@
         <x-page-heading>Share board</x-page-heading>
 
 
-        <x-forms.form id="share" method="POST" action="/my-boards/{{ $board->id }}/share"
+        <x-forms.form id="share" method="POST" action="{{ route('boards.share', $board->id) }}"
             enctype="multipart/form-data">
             @csrf
             <x-forms.input name="email" label="Share Email" type="email" />
 
-            <x-forms.divider />
 
             @if (session('success'))
                 <div class="alert alert-success">
-                    {{ session('Shared email successfully.') }}
+                    {{ session('success') }}
                 </div>
             @endif
-            @if (session('message'))
-                <div class="alert alert-success">
-                    {{ session('message') }}
+            @if (session('error'))
+                <div class="alert alert-success text-red-500">
+                    {{ session('error') }}
                 </div>
             @endif
+            <x-forms.divider />
         </x-forms.form>
         <div class="flex justify-between max-w-2xl mx-auto space-y-6">
             <x-forms.button form="share">Share</x-forms.button>
