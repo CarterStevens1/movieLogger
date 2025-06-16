@@ -3,8 +3,11 @@
     {{-- Add ability to create a new board --}}
     <section class="pt-10">
         <h2 class="text-2xl font-bold">Create a new board</h2>
+        <div class="pt-10">
+            <x-createBoard />
+        </div>
     </section>
-    {{-- Recently edited boards --}}
+
     <section class="pt-10">
         <h2 class="text-2xl font-bold">Recently edited boards</h2>
     </section>

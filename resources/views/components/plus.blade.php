@@ -1,0 +1,4 @@
+<svg width="40" height="40" fill="currentColor" viewBox="0 0 24 24" transform="" id="injected-svg">
+    <!-- Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free -->
+    <path d="M3 13h8v8h2v-8h8v-2h-8V3h-2v8H3z" />
+</svg>
