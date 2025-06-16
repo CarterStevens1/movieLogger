@@ -19,6 +19,7 @@ Route::get('/my-boards/{board}', [BoardController::class, 'show'])->middleware([
 Route::get('/my-boards/{board}/edit', [BoardController::class, 'edit'])->middleware(['checkUserID', 'auth'])->name('boards.edit');
 Route::post('/my-boards/{board}/edit', [BoardController::class, 'update'])->middleware(['checkUserID', 'auth'])->name('boards.update');
 Route::post('/my-boards/{board}/delete', [BoardController::class, 'destroy'])->middleware(['checkUserID', 'auth'])->name('boards.destroy');
+Route::post('/my-boards/{board}/share', [BoardController::class, 'share'])->middleware(['checkUserID', 'auth'])->name('boards.share');
 
 
 

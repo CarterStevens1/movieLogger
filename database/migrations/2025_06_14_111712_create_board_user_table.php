@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('board_user', function (Blueprint $table) {
             $table->id();
-            $table->foreignId(Board::class)->constrained()->onDelete('cascade');
-            $table->foreignId(User::class)->constrained()->onDelete('cascade');
+            $table->foreignIdFor(Board::class)->constrained()->onDelete('cascade');
+            $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
             $table->timestamps();
 
             // Add a unique constraint to prevent duplicates

@@ -16,10 +16,12 @@ class BoardController extends Controller
     public function index()
     {
         $boards = Board::where('user_id', Auth::user()->id)->get();
+        $user = Auth::user();
+        $sharedBoards = $user->sharedBoards()->get();
 
         return view('boards', [
             'boards' => $boards,
-        ]);
+        ], compact('sharedBoards'));
     }
 
 
@@ -61,7 +63,6 @@ class BoardController extends Controller
      */
     public function edit(string $id)
     {
-        // Edit user password
         $board = Board::find($id);
         // Return view with success message
         return view('boards.edit', compact('board'))->with('success', 'Board updated successfully.');
@@ -98,11 +99,23 @@ class BoardController extends Controller
         return redirect()->route('boards');
     }
 
-    public function share(string $id)
+    public function share(Request $request, $boardId)
     {
-        $board = Board::find($id);
-        $board->share(Auth::user()->id);
-        return redirect()->route('boards.show', $board);
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found.'], 404);
+        }
+
+        $board = Board::findOrFail($boardId);
+        // Attach the user to the board (many-to-many) without duplicates
+        $board->sharedUsers()->syncWithoutDetaching([$user->id]);
+
+        // Return view with success message
+        return view('boards.edit', compact('board'))->with('success', 'Board shared with user successfully.');
     }
 
     public function unshare(string $id) {}

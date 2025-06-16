@@ -1,3 +1,5 @@
+@props(['boards', 'sharedBoards'])
+
 <x-layout>
     <div class="flex justify-between items-center pb-8">
         <x-page-heading class="text-center mb-0!">My Boards</x-page-heading>
@@ -29,10 +31,15 @@
     <section class="pt-10">
         <h2 class="text-2xl font-bold">Boards shared with me</h2>
         <div class="pt-10 grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6">
-            {{-- <x-board-card />
-            <x-board-card />
-            <x-board-card />
-            <x-board-card /> --}}
+            @if ($sharedBoards->isEmpty())
+                <p>No boards shared with you.</p>
+            @else
+                <ul>
+                    @foreach ($sharedBoards as $board)
+                        <x-board-card :board="$board" />
+                    @endforeach
+                </ul>
+            @endif
 
         </div>
     </section>

@@ -6,8 +6,6 @@
         <div>
             <x-button href="{{ url('my-boards/' . $board->id . '/edit') }}" class="mx-0! ms-auto!">Edit board</x-button>
             @if (Auth::user()->id === $board->user_id)
-                <x-button href="{{ url('my-boards/' . $board->id . '/share') }}" class="mx-0! ms-auto!">Share
-                    board</x-button>
                 <x-button href="{{ url('my-boards/' . $board->id . '/unshare') }}" class="mx-0! ms-auto!">Unshare
                     board</x-button>
             @endif

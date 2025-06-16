@@ -18,17 +18,19 @@ class checkUserID
     public function handle(Request $request, Closure $next): Response
     {
         $userID = Auth::user()->id;
+
         $boardID = Board::find($request->board);
 
         if (!$boardID) {
-            return redirect()->route('boards');
+            return redirect()->route('boards')->with('error', 'Board not found.');
         }
 
-        $boardUserID = $boardID->user_id;
+        // Check if user is owner or shared
+        $isOwner = $boardID->user_id === $userID;
+        $isShared = $boardID->sharedUsers()->where('user_id', $userID)->exists();
 
-
-        if ($userID != $boardUserID) {
-            return redirect()->route('boards');
+        if (!$isOwner && !$isShared) {
+            return redirect()->route('boards')->with('error', 'Access denied.');
         }
 
         return $next($request);
