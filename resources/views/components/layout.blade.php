@@ -22,7 +22,7 @@
 <body class="bg-[#191919] text-white pb-12">
     <div class="px-10">
         <nav class="flex justify-between items-center py-4 border-b border-white/10">
-            <div>
+            <div class="font-bold">
                 <a href="{{ url('/') }}">
                     <a href="{{ url('/') }}">Home</a>
                 </a>
@@ -57,6 +57,8 @@
             {{ $slot }}
         </main>
     </div>
+    @yield('content')
+    @livewireScripts
 </body>
 
 </html>
