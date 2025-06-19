@@ -2,13 +2,13 @@
 
 ## Users
 
-    ### Can log in
-        - Can log in with a username and password
-        - Error if incorrecct username or password
-    ### Can log out
-    ### Can create a new user
+    ### Can log in (X - DONE)
+        - Can log in with a username and password (X - DONE)
+        - Error if incorrecct username or password (X - DONE)
+    ### Can log out (X - DONE)
+    ### Can create a new user (X - DONE)
         - Error if username already exists
-    ### Can edit a user
+    ### Can edit a user (X - DONE)
         - Error if username already exists
         - Error if using invalid character
 
@@ -22,14 +22,14 @@
 
     ### Can delete a movie
 
-    ### Can Create a board
-        - Can delete a board
-        - Can give a board a title/name
+    ### Can Create a board (X - DONE)
+        - Can delete a board (X - DONE)
+        - Can give a board a title/name (X - DONE)
 
     ### Can Assign "boards" to a user
-        - Can assign a board to a user X
-        - Can delete a board
-        - Can assign a board to multiple users
+        - Can assign a board to a user (X - DONE)
+        - Can delete a board (X - DONE)
+        - Can assign a board to multiple users (X - DONE)
           -- New joining table between users and boards - Get board ID and all the shared user ID's
           --- 3 columns (id_user_id, board_id, shared_user_id)
           1_1_1_2

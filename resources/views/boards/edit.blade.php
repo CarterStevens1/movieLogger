@@ -25,7 +25,7 @@
             @csrf
             @method('POST')
             <button form="delete" class="flex gap-2 mx-0 bg-red-500 rounded py-2 px-6 font-bold cursor-pointer">
-                <x-bin />
+                <x-svgs.bin />
                 Delete board</button>
         </form>
 

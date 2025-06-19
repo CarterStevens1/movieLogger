@@ -21,7 +21,7 @@
 
     @guest
         <section class="pt-10">
-            <h2 class="text-2xl font-bold text-center">Log in to start creating boards</h2>
+            <h1 class="text-2xl font-bold text-center">Log in or create an account to start creating boards</h1>
         </section>
     @endguest
 
