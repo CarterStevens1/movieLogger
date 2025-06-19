@@ -91,10 +91,12 @@ class RegisteredUserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy()
     {
         // Delete the user
-        $user = User::find($id);
-        $user->delete();
+        $users = User::findOrFail(Auth::user()->id);
+        $users->delete();
+        Auth::logout();
+        return redirect('/');
     }
 }
