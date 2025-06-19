@@ -5,7 +5,7 @@
         <section class="pt-10">
             <h2 class="text-2xl font-bold">Create a new board</h2>
             <div class="pt-10">
-                <x-createBoard />
+                <x-boards.createBoard />
             </div>
         </section>
 

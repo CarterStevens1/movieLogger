@@ -35,6 +35,8 @@
 
     {{-- Add table with ability to add rows and columns making it fully editable - This will be moved into its own blade template --}}
     <section class="mt-20 text-center">
-        <div class="bg-white/9 h-250 w-full flex justify-center items-center overflow-auto">TABLE</div>
+        <div class="bg-white/9 h-250 w-full flex items-start overflow-auto p-4">
+            <x-boards.board-table :board="$board" />
+        </div>
     </section>
 </x-layout>

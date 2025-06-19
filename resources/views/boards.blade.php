@@ -14,9 +14,9 @@
 
         <div class="pt-10 grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6">
             {{-- Display all boards you've created grab the user id and check for all boards that user has created --}}
-            <x-createBoard />
+            <x-boards.createBoard />
             @foreach ($boards as $board)
-                <x-board-card :board="$board" />
+                <x-boards.board-card :board="$board" />
             @endforeach
 
         </div>
@@ -30,7 +30,7 @@
             @else
                 <ul>
                     @foreach ($sharedBoards as $board)
-                        <x-board-card :board="$board" />
+                        <x-boards.board-card :board="$board" />
                     @endforeach
                 </ul>
             @endif
