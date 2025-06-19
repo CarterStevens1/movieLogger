@@ -36,5 +36,7 @@ Route::middleware('guest')->group(function () {
 
 Route::get('edit', [RegisteredUserController::class, 'edit'])->middleware('auth')->name('edit');
 Route::post('edit', [RegisteredUserController::class, 'update'])->middleware('auth')->name('update');
+Route::post('destroy', [RegisteredUserController::class, 'destroy'])->middleware('auth')->name('destroy');
+
 
 Route::post('logout', [LoginController::class, 'destroy'])->middleware('auth');
