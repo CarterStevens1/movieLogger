@@ -7,6 +7,7 @@ use App\Models\User;
 use Error;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 
 class BoardController extends Controller
 {
@@ -105,12 +106,12 @@ class BoardController extends Controller
         ]);
         $user = User::where('email', strtolower($request->email))->first();
         if (!$user) {
-            return back()->with('error', 'User does not exist.');
+            return Redirect::back()->with('error', 'User does not exist.');
         }
 
         $board = Board::findOrFail($boardId);
         if ($board->sharedUsers()->where('user_id', $user->id)->exists()) {
-            return back()->with('error', 'Board already shared with user.');
+            return Redirect::back()->with('error', 'Board already shared with user.');
         }
         // Attach the user to the board (many-to-many) without duplicates
         $board->sharedUsers()->attach($user->id, [
@@ -118,7 +119,7 @@ class BoardController extends Controller
         ]);
 
         // Return view with success message
-        return  back()->with('success', 'Board shared with user successfully.');
+        return  Redirect::back()->with('success', 'Board shared with user successfully.');
     }
 
     public function unshare(string $id) {}

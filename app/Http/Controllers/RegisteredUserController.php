@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\Rules\Password;
 
@@ -77,7 +78,7 @@ class RegisteredUserController extends Controller
 
         // Check current password
         if (!Hash::check($request->current_password, $user->password)) {
-            return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+            return Redirect::back()->withErrors(['current_password' => 'Current password is incorrect.']);
         }
 
         // Update password
@@ -85,7 +86,7 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return back()->with('success', 'Password updated successfully.');
+        return Redirect::back()->with('success', 'Password updated successfully.');
     }
 
     /**
