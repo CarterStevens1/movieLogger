@@ -8,6 +8,6 @@ it('does not use debugging functions', function () {
 })->group('debug');
 
 it('uses the redirect facade for redirecting', function () {
-    expect(Redirect::class)
-        ->toBeUsedIn('App\\Http\\Controllers\\');
+    expect(['back', 'redirect', 'to_route'])
+        ->not->toBeUsedIn('App\\Http\\Controllers\\');
 })->group('debug');;
