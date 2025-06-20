@@ -70,3 +70,15 @@ it('edits user successfully', function () {
 
     expect(Hash::check('newpassword', Auth::user()->password))->toBeTrue();
 });
+
+it('can delete a user successfully', function () {
+    login();
+    // Delete user and check success message
+    $this->post(route('destroy'))->assertSessionHas('success', 'User deleted successfully.');
+});
+
+it('failes to delete a user due to not being logged in', function () {
+
+    // Delete user with ID and check success message
+    $this->post(route('destroy'))->assertSessionHas('error', 'Not logged in. cannot delete user.');
+})->skip('Need to finish this test');

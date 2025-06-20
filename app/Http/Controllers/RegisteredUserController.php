@@ -94,10 +94,14 @@ class RegisteredUserController extends Controller
      */
     public function destroy()
     {
-        // Delete the user
-        $users = User::findOrFail(Auth::user()->id);
-        $users->delete();
+        $user = User::findOrFail(Auth::user()->id);
+        if ($user->id !== Auth::user()->id) {
+            return Redirect::back()->with('error', 'Not logged in. cannot delete user.');
+        }
+
+        $user->delete();
         Auth::logout();
-        return redirect('/');
+        // Redirect to home page
+        return Redirect::route('home')->with('success', 'User deleted successfully.');
     }
 }

@@ -39,4 +39,4 @@ Route::post('edit', [RegisteredUserController::class, 'update'])->middleware('au
 Route::post('destroy', [RegisteredUserController::class, 'destroy'])->middleware('auth')->name('destroy');
 
 
-Route::post('logout', [LoginController::class, 'destroy'])->middleware('auth');
+Route::post('logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
