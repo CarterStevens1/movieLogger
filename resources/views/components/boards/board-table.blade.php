@@ -57,8 +57,7 @@
 </script> --}}
 
 
-<!-- Context Tag Menu -->
-<!-- Context Menu -->
+<!-- Tag menu-->
 <div id="contextMenu" class="hidden fixed bg-white border border-gray-300 rounded shadow-lg z-50 py-2 min-w-40">
     <div class="px-3 py-1 text-xs font-semibold text-gray-500 border-b border-gray-200 mb-1 pb-3">Apply Tag
     </div>
@@ -97,8 +96,8 @@
                             <input type="text"
                                 class="cell-input border-none px-1.5 py-1 w-full h-full bg-transparent text-xs font-sans outline-none resize-none"
                                 data-row="{{ $row }}" data-col="{{ $col }}" onchange="saveCell(this)"
-                                oncontextmenu="showContextMenu(event, this)"
-                                ontouchstart="handleTouchStart(event, this)" ontouchend="handleTouchEnd(event, this)">
+                                oncontextmenu="showTagMenu(event, this)" ontouchstart="handleTouchStart(event, this)"
+                                ontouchend="handleTouchEnd(event, this)">
                         </td>
                     @endfor
                     <td class="bg-blue-50 hover:bg-blue-100 cursor-pointer transition-colors text-center align-middle text-base text-gray-600 select-none border border-gray-200 p-0 relative min-w-20 h-6"
@@ -151,7 +150,7 @@
                 };
 
                 // Show context menu
-                showContextMenu(syntheticEvent, input);
+                showTagMenu(syntheticEvent, input);
 
                 // Add haptic feedback if available
                 if (navigator.vibrate) {
@@ -179,7 +178,7 @@
         if (touchDuration < 500 && !touchMoved) {
             const contextMenu = document.getElementById('contextMenu');
             if (!contextMenu.classList.contains('hidden')) {
-                hideContextMenu();
+                hideTagMenu();
             }
         }
     }
@@ -193,7 +192,7 @@
     }
 
     // Show context menu
-    function showContextMenu(event, input) {
+    function showTagMenu(event, input) {
         event.preventDefault();
         activeCell = input;
 
@@ -247,7 +246,7 @@
         contextMenu.style.position = 'fixed'; // This ensures it stays relative to viewport
     }
     // Hide context menu
-    function hideContextMenu() {
+    function hideTagMenu() {
         document.getElementById('contextMenu').classList.add('hidden');
         activeCell = null;
     }
@@ -272,7 +271,7 @@
                 activeCell.style.color = 'black';
             }
         }
-        hideContextMenu();
+        hideTagMenu();
     }
 
     // Remove tag from cell
@@ -289,7 +288,7 @@
             cell.style.backgroundColor = '';
             activeCell.style.color = '';
         }
-        hideContextMenu();
+        hideTagMenu();
     }
 
 
@@ -306,7 +305,7 @@
     // Hide context menu when clicking elsewhere
     document.addEventListener('click', function(event) {
         if (!event.target.closest('#contextMenu')) {
-            hideContextMenu();
+            hideTagMenu();
         }
     });
 
@@ -358,7 +357,7 @@
                 saveCell(this);
             };
             input.oncontextmenu = function(e) {
-                showContextMenu(e, this);
+                showTagMenu(e, this);
             };
             input.ontouchstart = function(e) {
                 handleTouchStart(e, this);
@@ -416,7 +415,7 @@
                 saveCell(this);
             };
             input.oncontextmenu = function(e) {
-                showContextMenu(e, this);
+                showTagMenu(e, this);
             };
             newCell.appendChild(input);
             row.insertBefore(newCell, row.lastElementChild);
