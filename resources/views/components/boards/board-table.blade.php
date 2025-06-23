@@ -1,4 +1,18 @@
 @props(['board'])
+@php
+    // Method 1: Simple conversion with default colors
+    $tagsArray = collect(explode(',', $board->tags))
+        ->filter() // Remove empty values
+        ->map(function ($tag, $index) {
+            $colors = ['#ef4444', '#f59e0b', '#10b981', '#6366f1', '#8b5cf6', '#ec4899', '#06b6d4'];
+            return [
+                'name' => trim($tag),
+                'color' => $colors[$index % count($colors)],
+            ];
+        })
+        ->values()
+        ->toArray();
+@endphp
 {{-- <table id="table-container"
     class="w-full table-auto [&_th]:min-w-[150px] overflow-auto [&_th]:p-2 [&_td]:p-2 [&_th]:border [&_td]:border [&_td]:h-0 ">
 
@@ -43,17 +57,27 @@
 </script> --}}
 
 
+<!-- Context Tag Menu -->
+<!-- Context Menu -->
+<div id="contextMenu" class="hidden fixed bg-white border border-gray-300 rounded shadow-lg z-50 py-2 min-w-40">
+    <div class="px-3 py-1 text-xs font-semibold text-gray-500 border-b border-gray-200 mb-1">Apply Tag</div>
+    <div id="contextMenuTags"></div>
+    <div class="border-t border-gray-200 mt-1 pt-1">
+        <div class="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm text-red-600" onclick="removeTag()">Remove Tag
+        </div>
+    </div>
+</div>
 
-<div class="border border-gray-300 rounded overflow-auto max-h-screen shadow-md">
+<div class="bg-white border border-gray-300 rounded overflow-auto max-h-screen shadow-md">
     <table class="border-collapse w-full min-w-max" id="excelTable">
-        <thead class="sticky -top-1 z-1">
+        <thead>
             <tr id="headerRow">
                 <th
-                    class="bg-blue-50 font-bold text-center text-xs text-gray-600 border border-gray-200 p-0 relative min-w-10 w-10 h-6">
+                    class="bg-gray-50 font-bold text-center text-xs text-gray-600 border border-gray-200 p-0 relative min-w-10 w-10 h-6">
                 </th>
                 @for ($col = 0; $col < 20; $col++)
                     <th
-                        class="bg-blue-50 font-bold text-center text-xs text-gray-600 border border-gray-200 p-0 relative min-w-20 h-6">
+                        class="bg-gray-50 font-bold text-center text-xs text-gray-600 border border-gray-200 p-0 relative min-w-20 h-6">
                         {{ chr(65 + ($col % 26)) }}{{ $col >= 26 ? intval($col / 26) : '' }}</th>
                 @endfor
                 <th class="bg-blue-50 hover:bg-blue-100 cursor-pointer transition-colors text-center align-middle text-base text-gray-600 select-none border border-gray-200 p-0 relative min-w-20 h-6"
@@ -64,13 +88,16 @@
             @for ($row = 1; $row <= 50; $row++)
                 <tr>
                     <td
-                        class="bg-blue-50 font-bold text-center text-xs text-gray-600 border border-gray-200 p-0 relative min-w-10 w-10 h-6">
+                        class="bg-gray-50 font-bold text-center text-xs text-gray-600 border border-gray-200 p-0 relative min-w-10 w-10 h-6">
                         {{ $row }}</td>
                     @for ($col = 0; $col < 20; $col++)
-                        <td class="border border-gray-200 p-0 relative min-w-20 h-6">
+                        <td class="border border-gray-200 p-0 relative min-w-20 h-6"
+                            data-cell-id="{{ $row }}-{{ $col }}">
                             <input type="text"
                                 class="cell-input border-none px-1.5 py-1 w-full h-full bg-transparent text-xs font-sans outline-none resize-none"
-                                data-row="{{ $row }}" data-col="{{ $col }}" onchange="saveCell(this)">
+                                data-row="{{ $row }}" data-col="{{ $col }}" onchange="saveCell(this)"
+                                oncontextmenu="showContextMenu(event, this)"
+                                ontouchstart="handleTouchStart(event, this)" ontouchend="handleTouchEnd(event, this)">
                         </td>
                     @endfor
                     <td class="bg-blue-50 hover:bg-blue-100 cursor-pointer transition-colors text-center align-middle text-base text-gray-600 select-none border border-gray-200 p-0 relative min-w-20 h-6"
@@ -95,6 +122,192 @@
     let currentRows = 50;
     let currentCols = 20;
     let tableData = {};
+    let cellTags = {};
+    let tags = @json($tagsArray ?? []);
+
+    let activeCell = null;
+    let touchStartTime = 0;
+    let touchTimer = null;
+    let touchMoved = false;
+
+    // Mobile touch handlers
+    function handleTouchStart(event, input) {
+        touchStartTime = Date.now();
+        touchMoved = false;
+
+        // Long press detection - show context menu after 500ms
+        touchTimer = setTimeout(() => {
+            if (!touchMoved) {
+                // Prevent default touch behavior
+                event.preventDefault();
+
+                // Create a synthetic event with touch coordinates
+                const touch = event.touches[0];
+                const syntheticEvent = {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY,
+                    preventDefault: () => {}
+                };
+
+                // Show context menu
+                showContextMenu(syntheticEvent, input);
+
+                // Add haptic feedback if available
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            }
+        }, 500);
+
+        // Listen for touch move to cancel long press
+        input.addEventListener('touchmove', handleTouchMove, {
+            once: true
+        });
+    }
+
+    function handleTouchEnd(event, input) {
+        const touchDuration = Date.now() - touchStartTime;
+
+        // Clear the long press timer
+        if (touchTimer) {
+            clearTimeout(touchTimer);
+            touchTimer = null;
+        }
+
+        // If it was a short tap and context menu is open, close it
+        if (touchDuration < 500 && !touchMoved) {
+            const contextMenu = document.getElementById('contextMenu');
+            if (!contextMenu.classList.contains('hidden')) {
+                hideContextMenu();
+            }
+        }
+    }
+
+    function handleTouchMove(event) {
+        touchMoved = true;
+        if (touchTimer) {
+            clearTimeout(touchTimer);
+            touchTimer = null;
+        }
+    }
+
+    // Show context menu
+    function showContextMenu(event, input) {
+        event.preventDefault();
+        activeCell = input;
+
+        const contextMenu = document.getElementById('contextMenu');
+        const contextMenuTags = document.getElementById('contextMenuTags');
+
+        // Clear existing menu items
+        contextMenuTags.innerHTML = '';
+
+        // Add tag options
+        tags.forEach(tag => {
+            const menuItem = document.createElement('div');
+            menuItem.className = 'px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm flex items-center gap-2';
+            menuItem.innerHTML = `
+                    <div class="w-4 h-4 rounded" style="background-color: ${tag.color}"></div>
+                    <span>${tag.name}</span>
+                `;
+            menuItem.onclick = () => applyTag(tag);
+            contextMenuTags.appendChild(menuItem);
+        });
+
+        // Position menu at click location (viewport relative)
+        let x = event.clientX;
+        let y = event.clientY;
+
+        // Ensure menu doesn't go off-screen
+        const menuRect = contextMenu.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        // Show menu temporarily to get dimensions
+        contextMenu.classList.remove('hidden');
+        const menuWidth = contextMenu.offsetWidth;
+        const menuHeight = contextMenu.offsetHeight;
+
+        // Adjust position if menu would go off-screen
+        if (x + menuWidth > viewportWidth) {
+            x = viewportWidth - menuWidth - 10;
+        }
+        if (y + menuHeight > viewportHeight) {
+            y = viewportHeight - menuHeight - 10;
+        }
+
+        // Ensure minimum margins
+        x = Math.max(10, x);
+        y = Math.max(10, y);
+
+        // Position menu
+        contextMenu.style.left = x + 'px';
+        contextMenu.style.top = y + 'px';
+        contextMenu.style.position = 'fixed'; // This ensures it stays relative to viewport
+    }
+    // Hide context menu
+    function hideContextMenu() {
+        document.getElementById('contextMenu').classList.add('hidden');
+        activeCell = null;
+    }
+
+    // Apply tag to cell
+    function applyTag(tag) {
+        if (activeCell) {
+            const row = activeCell.getAttribute('data-row');
+            const col = activeCell.getAttribute('data-col');
+            const cellId = `${row}-${col}`;
+
+            cellTags[cellId] = tag;
+
+            // Apply background color to cell
+            const cell = activeCell.parentElement;
+            cell.style.backgroundColor = tag.color;
+
+            // Make text white if background is dark
+            if (isDarkColor(tag.color)) {
+                activeCell.style.color = 'white';
+            } else {
+                activeCell.style.color = 'black';
+            }
+        }
+        hideContextMenu();
+    }
+
+    // Remove tag from cell
+    function removeTag() {
+        if (activeCell) {
+            const row = activeCell.getAttribute('data-row');
+            const col = activeCell.getAttribute('data-col');
+            const cellId = `${row}-${col}`;
+
+            delete cellTags[cellId];
+
+            // Remove background color
+            const cell = activeCell.parentElement;
+            cell.style.backgroundColor = '';
+            activeCell.style.color = '';
+        }
+        hideContextMenu();
+    }
+
+
+    // Check if color is dark
+    function isDarkColor(color) {
+        const hex = color.replace('#', '');
+        const r = parseInt(hex.substr(0, 2), 16);
+        const g = parseInt(hex.substr(2, 2), 16);
+        const b = parseInt(hex.substr(4, 2), 16);
+        const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+        return brightness < 128;
+    }
+
+    // Hide context menu when clicking elsewhere
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('#contextMenu')) {
+            hideContextMenu();
+        }
+    });
 
     // Generate column label (A, B, C, ..., Z, AA, AB, etc.)
     function getColumnLabel(index) {
@@ -113,7 +326,6 @@
         const key = `${row}-${col}`;
         tableData[key] = input.value;
     }
-
     // Add new row
     function addRow() {
         currentRows++;
@@ -134,6 +346,7 @@
         for (let col = 0; col < currentCols; col++) {
             const cell = document.createElement('td');
             cell.className = 'border border-gray-200 p-0 relative min-w-20 h-6';
+            cell.setAttribute('data-cell-id', `${currentRows}-${col}`);
             const input = document.createElement('input');
             input.type = 'text';
             input.className =
@@ -142,6 +355,21 @@
             input.setAttribute('data-col', col);
             input.onchange = function() {
                 saveCell(this);
+            };
+            input.oncontextmenu = function(e) {
+                showContextMenu(e, this);
+            };
+            input.ontouchstart = function(e) {
+                handleTouchStart(e, this);
+            };
+            input.ontouchend = function(e) {
+                handleTouchEnd(e, this);
+            };
+            input.ontouchstart = function(e) {
+                handleTouchStart(e, this);
+            };
+            input.ontouchend = function(e) {
+                handleTouchEnd(e, this);
             };
             cell.appendChild(input);
             newRow.appendChild(cell);
@@ -158,7 +386,6 @@
         // Insert before the add row
         tableBody.insertBefore(newRow, addRowTr);
     }
-
     // Add new column
     function addColumn() {
         currentCols++;
@@ -177,6 +404,7 @@
         rows.forEach((row, index) => {
             const newCell = document.createElement('td');
             newCell.className = 'border border-gray-200 p-0 relative min-w-20 h-6';
+            newCell.setAttribute('data-cell-id', `${index + 1}-${currentCols - 1}`);
             const input = document.createElement('input');
             input.type = 'text';
             input.className =
@@ -185,6 +413,9 @@
             input.setAttribute('data-col', currentCols - 1);
             input.onchange = function() {
                 saveCell(this);
+            };
+            input.oncontextmenu = function(e) {
+                showContextMenu(e, this);
             };
             newCell.appendChild(input);
             row.insertBefore(newCell, row.lastElementChild);
@@ -199,7 +430,6 @@
         addRowCell.onclick = addRow;
         addRowTr.insertBefore(addRowCell, addRowTr.lastElementChild);
     }
-
     // Keyboard navigation
     document.addEventListener('keydown', function(e) {
         const activeElement = document.activeElement;
@@ -253,10 +483,5 @@
                 }
             }
         }
-    });
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Excel-style table initialized with 20 columns and 50 rows');
     });
 </script>
