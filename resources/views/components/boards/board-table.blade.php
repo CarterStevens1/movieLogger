@@ -60,7 +60,7 @@
 <!-- Context Tag Menu -->
 <!-- Context Menu -->
 <div id="contextMenu" class="hidden fixed bg-white border border-gray-300 rounded shadow-lg z-50 py-2 min-w-40">
-    <div class="px-3 py-1 text-xs font-semibold text-gray-500 border-b border-gray-200 mb-1">Apply Tag</div>
+    <div class="px-3 py-1 text-xs font-semibold text-gray-500 border-b border-gray-200 mb-1 pb-3">Apply Tag</div>
     <div id="contextMenuTags"></div>
     <div class="border-t border-gray-200 mt-1 pt-1">
         <div class="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm text-red-600" onclick="removeTag()">Remove Tag
@@ -68,16 +68,16 @@
     </div>
 </div>
 
-<div class="bg-white border border-gray-300 rounded overflow-auto max-h-screen shadow-md">
+<div class="rounded overflow-auto max-h-screen shadow-md">
     <table class="border-collapse w-full min-w-max" id="excelTable">
         <thead>
             <tr id="headerRow">
                 <th
-                    class="bg-gray-50 font-bold text-center text-xs text-gray-600 border border-gray-200 p-0 relative min-w-10 w-10 h-6">
+                    class="font-bold text-center text-xs text-white border-b-2 border-white/20 p-0 relative min-w-10 w-10 h-6">
                 </th>
                 @for ($col = 0; $col < 20; $col++)
                     <th
-                        class="bg-gray-50 font-bold text-center text-xs text-gray-600 border border-gray-200 p-0 relative min-w-20 h-6">
+                        class="font-bold text-center text-xs text-white border-b-3 border-s-1 border-white/20 p-0 relative min-w-20 h-6">
                         {{ chr(65 + ($col % 26)) }}{{ $col >= 26 ? intval($col / 26) : '' }}</th>
                 @endfor
                 <th class="bg-blue-50 hover:bg-blue-100 cursor-pointer transition-colors text-center align-middle text-base text-gray-600 select-none border border-gray-200 p-0 relative min-w-20 h-6"
@@ -88,10 +88,10 @@
             @for ($row = 1; $row <= 50; $row++)
                 <tr>
                     <td
-                        class="bg-gray-50 font-bold text-center text-xs text-gray-600 border border-gray-200 p-0 relative min-w-10 w-10 h-6">
+                        class=" font-bold text-center text-xs text-white border border-r-3 border-white/20 p-0 relative min-w-10 w-10 h-6">
                         {{ $row }}</td>
                     @for ($col = 0; $col < 20; $col++)
-                        <td class="border border-gray-200 p-0 relative min-w-20 h-6"
+                        <td class="border border-white/20 p-0 relative min-w-20 h-6"
                             data-cell-id="{{ $row }}-{{ $col }}">
                             <input type="text"
                                 class="cell-input border-none px-1.5 py-1 w-full h-full bg-transparent text-xs font-sans outline-none resize-none"
