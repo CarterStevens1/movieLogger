@@ -70,11 +70,11 @@
         </thead>
         <tbody id="tableBody">
             @for ($row = 1; $row <= 50; $row++)
-                <tr class="[&_td]:h-6 [&_td]:relative [&_td]:border [&_td]:border-white/20 [&_td]:p-0">
+                <tr class="*:w-auto [&_td]:h-6 [&_td]:relative [&_td]:border [&_td]:border-white/20 [&_td]:p-0">
                     <td class="w-10 min-w-10 border-r-3 text-center text-xs font-bold">
                         {{ $row }}</td>
                     @for ($col = 0; $col < 20; $col++)
-                        <td class="min-w-20" data-cell-id="{{ $row }}-{{ $col }}">
+                        <td class="min-w-30" data-cell-id="{{ $row }}-{{ $col }}">
                             <input type="text"
                                 class="cell-input size-full resize-none border-none bg-transparent px-1.5 py-1 font-sans text-xs outline-none"
                                 data-row="{{ $row }}" data-col="{{ $col }}" onchange="saveCell(this)"
@@ -82,7 +82,7 @@
                                 ontouchend="handleTouchEnd(event, this)">
                         </td>
                     @endfor
-                    <td class="min-w-20 cursor-pointer text-center align-middle text-base transition-colors select-none"
+                    <td class="min-w-30 cursor-pointer text-center align-middle text-base transition-colors select-none"
                         onclick="addColumn()">+</td>
                 </tr>
             @endfor
