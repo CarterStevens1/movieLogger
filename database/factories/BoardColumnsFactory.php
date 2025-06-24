@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Board;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,6 +19,10 @@ class BoardColumnsFactory extends Factory
     public function definition(): array
     {
         return [
+            //
+            'user_id' => User::factory(),
+            'board_id' => Board::factory(),
+            'position' => 1,
             //
         ];
     }

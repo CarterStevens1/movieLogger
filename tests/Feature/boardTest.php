@@ -122,3 +122,15 @@ it('can unshare a board with another user', function () {
 //     // Create a row and add it to the board
 //     // Assert that the column and row were added
 // });
+
+describe('Column Name Generation', function() {
+    it('generates correct Excel-style column names', function() {
+        expect(generateColumnName(1))->toBe('A');
+        expect(generateColumnName(26))->toBe('Z');
+        expect(generateColumnName(27))->toBe('AA');
+        expect(generateColumnName(52))->toBe('AZ');
+        expect(generateColumnName(53))->toBe('BA');
+        expect(generateColumnName(702))->toBe('ZZ');
+        expect(generateColumnName(703))->toBe('AAA');
+    });
+});
