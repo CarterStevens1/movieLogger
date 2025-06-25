@@ -332,131 +332,179 @@
     }
 
 
-    // Update sortColumn function to save to database
+    // Sort columns by a-z or z-a
     async function sortColumn(direction) {
         if (activeColumn === null) return;
 
-        // Get all rows except the header and add-row
-        const tableBody = document.getElementById('tableBody');
-        const rows = Array.from(tableBody.querySelectorAll('tr:not(.add-row-tr)'));
-
-        // Get column index in the boardColumns array
-        const colIndex = boardColumns.indexOf(activeColumn);
-
-        if (colIndex === -1) return;
-
-        // Create array of row data with original positions
-        const rowData = rows.map((row, index) => {
-            const cellInput = row.children[colIndex + 1]?.querySelector('input');
-            const value = (cellInput?.value || '').toString().toLowerCase();
-            const rowId = row.getAttribute('data-row-id'); // Assuming you have row IDs
-
-            return {
-                row: row,
-                value: value,
-                originalIndex: index,
-                rowId: rowId
-            };
-        });
-
-        // Sort the data array
-        rowData.sort((a, b) => {
-            if (direction === 'asc') {
-                return a.value.localeCompare(b.value);
-            } else {
-                return b.value.localeCompare(a.value);
-            }
-        });
-
-        // Update the actual data positions in the database
-        const updates = [];
-        rowData.forEach((item, newIndex) => {
-            if (item.rowId) {
-                updates.push({
-                    rowId: item.rowId,
-                    newPosition: newIndex + 1 // Positions usually start from 1
-                });
-            }
-        });
-
-        // Send position updates to database
         try {
-            await fetch('/board-cells/reorder', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute(
-                        'content')
-                },
-                body: JSON.stringify({
-                    updates: updates
-                })
-            });
-        } catch (error) {
-            console.error('Error updating row positions:', error);
-            return; // Don't update UI if database update fails
-        }
+            // Get all rows except the header and add-row
+            const tableBody = document.getElementById('tableBody');
+            const rows = Array.from(tableBody.querySelectorAll('tr:not(.add-row-tr)'));
 
-        // Update the UI based on new positions
-        // Clear existing rows from tbody (except add-row)
-        const addRowTr = tableBody.querySelector('.add-row-tr');
-        tableBody.innerHTML = '';
-
-        // Re-append rows in sorted order but update their row numbers
-        rowData.forEach((item, index) => {
-            const row = item.row;
-            // Update the row number cell (first cell)
-            const rowNumberCell = row.children[0];
-            if (rowNumberCell) {
-                rowNumberCell.textContent = index + 1; // Update row number
+            // Get column index in the boardColumns array
+            const colIndex = boardColumns.indexOf(activeColumn);
+            if (colIndex === -1) {
+                console.error('Column not found in boardColumns array');
+                return;
             }
 
-            // Update any data attributes that track position
-            row.setAttribute('data-position', index + 1);
+            // Get column element and validate column ID
+            const columnElement = document.querySelector(`th[data-col="${activeColumn}"]`);
+            const columnId = columnElement?.getAttribute('data-column-id');
 
-            tableBody.appendChild(row);
-        });
+            if (!columnId) {
+                console.error('Column ID not found! Make sure your column headers have data-column-id attributes');
+                alert('Cannot save to database: Column ID not found');
+                return;
+            }
 
-        // Re-append add-row at the end
-        if (addRowTr) {
-            tableBody.appendChild(addRowTr);
-        }
+            // Extract all values from the specific column with their row information
+            const columnData = rows.map((row, index) => {
+                const cellInput = row.children[colIndex + 1]?.querySelector('input');
+                const value = cellInput?.value || '';
+                const rowId = row.querySelector('td[data-row-id]')?.getAttribute('data-row-id');
+                const cellId = cellInput?.getAttribute('data-cell-id');
 
-        // Clear all sort indicators first
-        clearSortIndicators();
+                return {
+                    value: value,
+                    originalIndex: index,
+                    rowId: rowId,
+                    cellId: cellId,
+                    inputElement: cellInput,
+                    rowElement: row
+                };
+            });
 
-        // Update sort indicator for active column
-        const indicator = document.getElementById(`sort-${activeColumn}`);
-        if (indicator) {
-            indicator.textContent = direction === 'asc' ? '↑' : '↓';
-        }
+            // Sort the data
+            const sortedData = [...columnData].sort((a, b) => {
+                // Handle empty values - put them at the end for both directions
+                if (!a.value && !b.value) return 0;
+                if (!a.value) return 1;
+                if (!b.value) return -1;
 
-        // Save sort config to database
-        const columnElement = document.querySelector(`th[data-col="${activeColumn}"]`);
-        const columnId = columnElement?.getAttribute('data-column-id');
+                const valueA = a.value.toString().toLowerCase();
+                const valueB = b.value.toString().toLowerCase();
 
-        if (columnId) {
-            try {
-                await fetch(`/board-columns/${columnId}/sort`, {
-                    method: 'PATCH',
+                if (direction === 'asc') {
+                    return valueA.localeCompare(valueB);
+                } else {
+                    return valueB.localeCompare(valueA);
+                }
+            });
+
+            // Prepare database updates
+            const updates = [];
+
+            // Update the DOM and prepare database updates
+            rows.forEach((row, index) => {
+                const cellInput = row.children[colIndex + 1]?.querySelector('input');
+                const newValue = sortedData[index].value;
+                const rowId = row.querySelector('td[data-row-id]')?.getAttribute('data-row-id');
+                const cellId = cellInput?.getAttribute('data-cell-id');
+
+                if (cellInput) {
+                    // Update the input value in the DOM
+                    cellInput.value = newValue;
+
+                    // Update local data storage
+                    const rowIndex = cellInput.getAttribute('data-row');
+                    const colIndex = cellInput.getAttribute('data-col');
+                    const key = `${rowIndex}-${colIndex}`;
+                    tableData[key] = newValue;
+                }
+
+                // Prepare database update if we have the necessary IDs
+                if (rowId && columnId) {
+                    updates.push({
+                        rowId: parseInt(rowId),
+                        cellId: cellId, // May be null for new cells
+                        columnId: parseInt(columnId),
+                        newValue: newValue
+                    });
+                }
+            });
+
+            // Send updates to database
+            if (updates.length > 0) {
+                const response = await fetch('/update-cell-values', {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute(
                             'content')
                     },
                     body: JSON.stringify({
-                        sort_config: {
-                            direction: direction,
-                            timestamp: Date.now()
-                        }
+                        updates: updates,
+                        columnId: parseInt(columnId),
+                        boardId: boardId // Include board ID for additional validation
                     })
                 });
-            } catch (error) {
-                console.error('Error saving sort config:', error);
-            }
-        }
 
-        hideColumnMenu();
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Database update failed:', errorText);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                // Update cell IDs if they were created
+                if (result.cellUpdates) {
+                    result.cellUpdates.forEach(update => {
+                        if (update.cellId && update.rowId) {
+                            const input = document.querySelector(
+                                `input[data-row-id="${update.rowId}"][data-column-id="${columnId}"]`
+                            );
+                            if (input && !input.getAttribute('data-cell-id')) {
+                                input.setAttribute('data-cell-id', update.cellId);
+                            }
+                        }
+                    });
+                }
+            }
+
+            // Update sort indicators
+            clearSortIndicators();
+            const indicator = document.getElementById(`sort-${activeColumn}`);
+            if (indicator) {
+                indicator.textContent = direction === 'asc' ? '↑' : '↓';
+            }
+
+            // Save sort configuration to database
+            await updateColumnSortConfig(columnId, direction);
+
+        } catch (error) {
+            console.error('Error during sort operation:', error);
+            alert('Failed to save sort order to database: ' + error.message);
+        } finally {
+            hideColumnMenu();
+        }
+    }
+
+    // Helper function to update column sort configuration
+    async function updateColumnSortConfig(columnId, direction) {
+        try {
+            const response = await fetch(`/board-columns/${columnId}/sort`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                        'content')
+                },
+                body: JSON.stringify({
+                    sort_config: {
+                        direction: direction,
+                        timestamp: Date.now()
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                console.error('Failed to save sort config:', await response.text());
+            }
+        } catch (error) {
+            console.error('Error saving sort config:', error);
+        }
     }
 
 

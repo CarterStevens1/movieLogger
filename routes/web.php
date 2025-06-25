@@ -35,7 +35,7 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/board-cells/{cell}', [BoardCellsController::class, 'update']);
     Route::post('/board-cells/bulk', [BoardCellsController::class, 'bulkStore']);
 
-    Route::post('/board-cells/reorder', [BoardCellsController::class, 'reorder']);
+    Route::post('/update-cell-values', [BoardController::class, 'updateCellValues']);
 });
 
 // Check if ID of user is the same as the user_id of the board

@@ -73,17 +73,4 @@ class BoardCellsController extends Controller
 
         return response()->json(['cells' => $cells]);
     }
-
-    public function reorder(Request $request)
-    {
-        $updates = $request->input('updates');
-
-        foreach ($updates as $update) {
-            // Update your row model with new position
-            BoardRows::where('id', $update['rowId'])
-                ->update(['position' => $update['newPosition']]);
-        }
-
-        return response()->json(['success' => true]);
-    }
 }
