@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\BoardColumnsController;
 use App\Http\Controllers\BoardController;
+use App\Http\Controllers\BoardRowsController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
@@ -13,6 +15,18 @@ Route::get('my-boards', [BoardController::class, 'index'])->middleware('auth')->
 
 Route::get('boards/create', [BoardController::class, 'create'])->middleware('auth')->name('boards.create');
 Route::post('boards/create', [BoardController::class, 'store'])->middleware('auth');
+
+Route::middleware(['auth'])->group(function () {
+    // Existing column routes
+    Route::post('/board-columns', [BoardColumnsController::class, 'store']);
+    Route::patch('/board-columns/{column}/sort', [BoardColumnsController::class, 'updateSort']);
+    Route::patch('/board-columns/reorder', [BoardColumnsController::class, 'reorder']);
+
+    // New row routes
+    Route::post('/board-rows', [BoardRowsController::class, 'store']);
+    Route::patch('/board-rows/reorder', [BoardRowsController::class, 'reorder']);
+    Route::delete('/board-rows/{row}', [BoardRowsController::class, 'destroy']);
+});
 
 // Check if ID of user is the same as the user_id of the board
 Route::get('/my-boards/{board}', [BoardController::class, 'show'])->middleware(['checkUserID', 'auth'])->name('boards.show');

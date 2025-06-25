@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -12,13 +13,44 @@ class BoardColumns extends Model
     /** @use HasFactory<\Database\Factories\BoardColumnsFactory> */
     use HasFactory;
 
-    public function board(): BelongsToMany
+    protected $fillable = [
+        'board_id',
+        'column_index',
+        'label',
+        'position',
+        'is_visible',
+        'sort_config'
+    ];
+
+    protected $casts = [
+        'sort_config' => 'array',
+        'is_visible' => 'boolean'
+    ];
+
+    public function board(): BelongsTo
     {
-        return $this->belongsToMany(Board::class);
+        return $this->belongsTo(Board::class);
     }
 
-    public function boardCells(): HasMany
+    public static function generateLabel($index)
     {
-        return $this->hasMany(BoardCells::class);
+        $result = '';
+        while ($index >= 0) {
+            $result = chr(65 + ($index % 26)) . $result;
+            $index = intval($index / 26) - 1;
+        }
+        return $result;
+    }
+
+    public static function createInitialColumns($boardId, $count = 20)
+    {
+        for ($i = 0; $i < $count; $i++) {
+            self::create([
+                'board_id' => $boardId,
+                'column_index' => $i,
+                'label' => self::generateLabel($i),
+                'position' => $i
+            ]);
+        }
     }
 }

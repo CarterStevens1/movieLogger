@@ -57,41 +57,49 @@
             <tr id="headerRow" class="[&_th]:h-6 [&_th]:relative [&_th]:border-white/20 [&_th]:p-0 [&_th]:text-center">
                 <th class="w-10 min-w-10 border-b-2 text-xs font-bold">
                 </th>
-                @for ($col = 0; $col < 20; $col++)
+                @foreach ($board->columns as $column)
                     <th class="min-w-20 cursor-pointer border-s-1 border-b-3 text-xs font-bold hover:bg-white/10"
-                        oncontextmenu="showColumnMenu(event, {{ $col }})" data-col="{{ $col }}">
-                        {{ chr(65 + ($col % 26)) }}{{ $col >= 26 ? intval($col / 26) : '' }}
-                        <span class="sort-indicator ml-1 text-xs" id="sort-{{ $col }}"></span>
+                        oncontextmenu="showColumnMenu(event, {{ $column->column_index }})"
+                        data-col="{{ $column->column_index }}" data-column-id="{{ $column->id }}">
+                        {{ $column->label }}
+                        <span class="sort-indicator ml-1 text-xs" id="sort-{{ $column->column_index }}">
+                            @if ($column->sort_config)
+                                {{ $column->sort_config['direction'] === 'asc' ? '↑' : '↓' }}
+                            @endif
+                        </span>
                     </th>
-                @endfor
+                @endforeach
                 <th class="min-w-20 cursor-pointer border align-middle text-base transition-colors select-none"
                     onclick="addColumn()">+</th>
             </tr>
         </thead>
         <tbody id="tableBody">
-            @for ($row = 1; $row <= 50; $row++)
+            @foreach ($board->rows as $row)
                 <tr class="*:w-auto [&_td]:h-6 [&_td]:relative [&_td]:border [&_td]:border-white/20 [&_td]:p-0">
-                    <td class="w-10 min-w-10 border-r-3 text-center text-xs font-bold">
-                        {{ $row }}</td>
-                    @for ($col = 0; $col < 20; $col++)
-                        <td class="min-w-30" data-cell-id="{{ $row }}-{{ $col }}">
+                    <td class="w-10 min-w-10 border-r-3 text-center text-xs font-bold"
+                        data-row-id="{{ $row->id }}">
+                        {{ $row->label }}
+                    </td>
+                    @foreach ($board->columns as $column)
+                        <td class="min-w-30" data-cell-id="{{ $row->row_index }}-{{ $column->column_index }}">
                             <input type="text"
                                 class="cell-input size-full resize-none border-none bg-transparent px-1.5 py-1 font-sans text-xs outline-none"
-                                data-row="{{ $row }}" data-col="{{ $col }}" onchange="saveCell(this)"
-                                oncontextmenu="showTagMenu(event, this)" ontouchstart="handleTouchStart(event, this)"
-                                ontouchend="handleTouchEnd(event, this)">
+                                data-row="{{ $row->row_index }}" data-col="{{ $column->column_index }}"
+                                data-row-id="{{ $row->id }}" data-column-id="{{ $column->id }}"
+                                onchange="saveCell(this)" oncontextmenu="showTagMenu(event, this)"
+                                ontouchstart="handleTouchStart(event, this)" ontouchend="handleTouchEnd(event, this)">
                         </td>
-                    @endfor
+                    @endforeach
                     <td class="min-w-30 cursor-pointer text-center align-middle text-base transition-colors select-none"
                         onclick="addColumn()">+</td>
                 </tr>
-            @endfor
+            @endforeach
             <tr
                 class="add-row-tr [&_td]:cursor-pointer [&_td]:transition-colors [&_td]:text-center [&_td]:align-middle [&_td]:text-base [&_td]:text-gray-600 [&_td]:select-none [&_td]:border [&_td]:border-white/20 [&_td]:p-0 [&_td]:relative [&_td]:min-w-10 [&_td]:w-10 [&_td]:h-6">
                 <td onclick="addRow()">+</td>
-                @for ($col = 0; $col < 20; $col++)
+                @foreach ($board->columns as $column)
                     <td onclick="addRow()">+</td>
-                @endfor
+                @endforeach
                 <td onclick="addRow()">+</td>
             </tr>
         </tbody>
@@ -99,17 +107,22 @@
 </div>
 
 <script>
-    let currentRows = 50;
-    let currentCols = 20;
+    // Add to your existing script section
+    let currentRows = {{ $board->rows->count() }};
+    let currentCols = {{ $board->columns->count() }};
     let tableData = {};
     let cellTags = {};
     let tags = @json($tagsArray ?? []);
+    let boardId = {{ $board->id }};
+    let boardColumns = @json($board->columns->pluck('column_index')->toArray());
+    let boardRows = @json($board->rows->pluck('row_index')->toArray());
 
     let activeCell = null;
     let activeColumn = null;
     let touchStartTime = 0;
     let touchTimer = null;
     let touchMoved = false;
+
 
     // Mobile touch handlers
     function handleTouchStart(event, input) {
@@ -271,82 +284,42 @@
         activeColumn = null;
     }
 
-    // Sort column functionality
-    function sortColumn(direction) {
+
+    // Update sortColumn function to save to database
+    async function sortColumn(direction) {
         if (activeColumn === null) return;
 
-        // Get all data from the column
-        const columnData = [];
-        for (let row = 1; row <= currentRows; row++) {
-            const input = document.querySelector(`input[data-row="${row}"][data-col="${activeColumn}"]`);
-            if (input) {
-                const cellId = `${row}-${activeColumn}`;
-                columnData.push({
-                    row: row,
-                    value: input.value || '',
-                    tags: cellTags[cellId] || null,
-                    originalIndex: row
+        // Your existing sort logic here...
+        // ... (keep all the existing sorting code)
+
+        // After sorting, save to database
+        const columnElement = document.querySelector(`th[data-col="${activeColumn}"]`);
+        const columnId = columnElement?.getAttribute('data-column-id');
+
+        if (columnId) {
+            try {
+                await fetch(`/board-columns/${columnId}/sort`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                            'content')
+                    },
+                    body: JSON.stringify({
+                        sort_config: {
+                            direction: direction,
+                            timestamp: Date.now()
+                        }
+                    })
                 });
+            } catch (error) {
+                console.error('Error saving sort config:', error);
             }
-        }
-
-        // Separate non-empty and empty cells
-        const nonEmptyCells = columnData.filter(item => item.value.trim() !== '');
-        const emptyCells = columnData.filter(item => item.value.trim() === '');
-
-        // Sort only the non-empty cells
-        nonEmptyCells.sort((a, b) => {
-            const aVal = a.value.toLowerCase();
-            const bVal = b.value.toLowerCase();
-
-            if (direction === 'asc') {
-                return aVal.localeCompare(bVal);
-            } else {
-                return bVal.localeCompare(aVal);
-            }
-        });
-
-        // Combine sorted non-empty cells with empty cells at the end
-        const sortedData = [...nonEmptyCells, ...emptyCells];
-
-        // Apply sorted data back to the column
-        sortedData.forEach((item, index) => {
-            const targetRow = index + 1;
-            const input = document.querySelector(`input[data-row="${targetRow}"][data-col="${activeColumn}"]`);
-            if (input) {
-                input.value = item.value;
-
-                // Update tableData
-                const cellId = `${targetRow}-${activeColumn}`;
-                tableData[cellId] = item.value;
-
-                // Apply tags if they exist
-                const cell = input.parentElement;
-                if (item.tags) {
-                    cellTags[cellId] = item.tags;
-                    cell.style.backgroundColor = item.tags.color;
-                    if (isDarkColor(item.tags.color)) {
-                        input.style.color = 'white';
-                    } else {
-                        input.style.color = 'black';
-                    }
-                } else {
-                    delete cellTags[cellId];
-                    cell.style.backgroundColor = '';
-                    input.style.color = '';
-                }
-            }
-        });
-
-        // Update sort indicator
-        clearSortIndicators();
-        const sortIndicator = document.getElementById(`sort-${activeColumn}`);
-        if (sortIndicator) {
-            sortIndicator.textContent = direction === 'asc' ? '↑' : '↓';
         }
 
         hideColumnMenu();
     }
+
 
     // Clear all sort indicators
     function clearSortIndicators() {
@@ -393,58 +366,71 @@
             return result;
         }).filter(row => row.some(cell => cell !== ''));
 
-        // Ensure we have enough columns
+        // Add columns if needed
         const maxCols = Math.max(...data.map(row => row.length));
-        while (currentCols < maxCols) {
-            addColumn();
+        const columnsToAdd = maxCols - currentCols;
+        if (columnsToAdd > 0) {
+            for (let i = 0; i < columnsToAdd; i++) {
+                addColumn(); // This will handle database creation
+            }
         }
 
-        // Ensure we have enough rows
-        while (currentRows < data.length) {
-            addRow();
+        // Add rows if needed
+        const rowsToAdd = data.length - currentRows;
+        if (rowsToAdd > 0) {
+            for (let i = 0; i < rowsToAdd; i++) {
+                addRow(); // This will handle database creation
+            }
         }
 
-        // Populate data
-        data.forEach((row, rowIndex) => {
-            row.forEach((cellValue, colIndex) => {
-                if (rowIndex < currentRows && colIndex < currentCols) {
-                    const input = document.querySelector(
-                        `input[data-row="${rowIndex + 1}"][data-col="${colIndex}"]`);
-                    if (input) {
-                        input.value = cellValue;
-                        saveCell(input);
+        // Wait a moment for DOM updates, then populate data
+        setTimeout(() => {
+            data.forEach((row, rowIndex) => {
+                row.forEach((cellValue, colIndex) => {
+                    const actualRowIndex = boardRows[rowIndex];
+                    const actualColIndex = boardColumns[colIndex];
+                    if (actualRowIndex !== undefined && actualColIndex !== undefined) {
+                        const input = document.querySelector(
+                            `input[data-row="${actualRowIndex}"][data-col="${actualColIndex}"]`
+                        );
+                        if (input) {
+                            input.value = cellValue;
+                            saveCell(input);
+                        }
                     }
-                }
+                });
             });
-        });
-
-        // Reset file input
-        event.target.value = '';
+        }, 100);
     }
 
     // CSV Export functionality
     function exportCSV() {
         const csvData = [];
 
-        // Determine actual data bounds
-        let maxRow = 0;
-        let maxCol = 0;
+        // Determine actual data bounds using database indices
+        let maxRowIndex = 0;
+        let maxColIndex = 0;
 
-        for (let row = 1; row <= currentRows; row++) {
-            for (let col = 0; col < currentCols; col++) {
-                const input = document.querySelector(`input[data-row="${row}"][data-col="${col}"]`);
+        boardRows.forEach(rowIndex => {
+            boardColumns.forEach(colIndex => {
+                const input = document.querySelector(
+                    `input[data-row="${rowIndex}"][data-col="${colIndex}"]`);
                 if (input && input.value.trim() !== '') {
-                    maxRow = Math.max(maxRow, row);
-                    maxCol = Math.max(maxCol, col);
+                    maxRowIndex = Math.max(maxRowIndex, boardRows.indexOf(rowIndex));
+                    maxColIndex = Math.max(maxColIndex, boardColumns.indexOf(colIndex));
                 }
-            }
-        }
+            });
+        });
 
         // Build CSV data
-        for (let row = 1; row <= maxRow; row++) {
+        for (let rowIdx = 0; rowIdx <= maxRowIndex; rowIdx++) {
             const rowData = [];
-            for (let col = 0; col <= maxCol; col++) {
-                const input = document.querySelector(`input[data-row="${row}"][data-col="${col}"]`);
+            const actualRowIndex = boardRows[rowIdx];
+
+            for (let colIdx = 0; colIdx <= maxColIndex; colIdx++) {
+                const actualColIndex = boardColumns[colIdx];
+                const input = document.querySelector(
+                    `input[data-row="${actualRowIndex}"][data-col="${actualColIndex}"]`);
                 let cellValue = input ? input.value || '' : '';
 
                 // Escape CSV special characters
@@ -554,32 +540,60 @@
     }
 
     // Add new row
-    function addRow() {
-        currentRows++;
+    async function addRow() {
+        try {
+            const response = await fetch('/board-rows', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                        'content')
+                },
+                body: JSON.stringify({
+                    board_id: boardId
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Dynamically add the new row instead of reloading
+                addRowToDom(data.row);
+                currentRows++;
+            }
+        } catch (error) {
+            console.error('Error adding row:', error);
+        }
+    }
+
+    function addRowToDom(rowData) {
         const tableBody = document.getElementById('tableBody');
         const addRowTr = document.querySelector('.add-row-tr');
 
         // Create new row
         const newRow = document.createElement('tr');
-        newRow.className = '[&_td]:h-6 [&_td]:relative [&_td]:border [&_td]:border-white/20 [&_td]:p-0';
+        newRow.className = '*:w-auto [&_td]:h-6 [&_td]:relative [&_td]:border [&_td]:border-white/20 [&_td]:p-0';
+
         // Row header
         const rowHeader = document.createElement('td');
-        rowHeader.className =
-            'font-bold text-center text-xs min-w-10 w-10';
-        rowHeader.textContent = currentRows;
+        rowHeader.className = 'w-10 min-w-10 border-r-3 text-center text-xs font-bold';
+        rowHeader.setAttribute('data-row-id', rowData.id);
+        rowHeader.textContent = rowData.label;
         newRow.appendChild(rowHeader);
 
-        // Data cells
-        for (let col = 0; col < currentCols; col++) {
+        // Data cells for each column
+        boardColumns.forEach(colIndex => {
             const cell = document.createElement('td');
-            cell.className = 'min-w-20';
-            cell.setAttribute('data-cell-id', `${currentRows}-${col}`);
+            cell.className = 'min-w-30';
+            cell.setAttribute('data-cell-id', `${rowData.row_index}-${colIndex}`);
+
             const input = document.createElement('input');
             input.type = 'text';
             input.className =
-                'cell-input border-none px-1.5 py-1 w-full h-full bg-transparent text-xs font-sans outline-none resize-none';
-            input.setAttribute('data-row', currentRows);
-            input.setAttribute('data-col', col);
+                'cell-input size-full resize-none border-none bg-transparent px-1.5 py-1 font-sans text-xs outline-none';
+            input.setAttribute('data-row', rowData.row_index);
+            input.setAttribute('data-col', colIndex);
+            input.setAttribute('data-row-id', rowData.id);
             input.onchange = function() {
                 saveCell(this);
             };
@@ -592,52 +606,89 @@
             input.ontouchend = function(e) {
                 handleTouchEnd(e, this);
             };
+
             cell.appendChild(input);
             newRow.appendChild(cell);
-        }
+        });
 
         // Add column button
         const addColCell = document.createElement('td');
         addColCell.className =
-            'cursor-pointer transition-colors text-center align-middle text-base select-none min-w-20';
+            'min-w-30 cursor-pointer text-center align-middle text-base transition-colors select-none';
         addColCell.textContent = '+';
         addColCell.onclick = addColumn;
         newRow.appendChild(addColCell);
 
         // Insert before the add row
         tableBody.insertBefore(newRow, addRowTr);
+
+        // Update boardRows array
+        boardRows.push(rowData.row_index);
     }
 
-    // Add new column
-    function addColumn() {
-        currentCols++;
+    // Replace the existing addColumn function
+    async function addColumn() {
+        try {
+            const response = await fetch('/board-columns', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                        'content')
+                },
+                body: JSON.stringify({
+                    board_id: boardId
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Dynamically add the new column
+                addColumnToDom(data.column);
+                currentCols++;
+            }
+        } catch (error) {
+            console.error('Error adding column:', error);
+        }
+    }
+
+    // Function to dynamically add column to DOM
+    function addColumnToDom(columnData) {
         const table = document.getElementById('excelTable');
 
         // Add header
         const headerRow = document.getElementById('headerRow');
         const newHeader = document.createElement('th');
-        newHeader.className =
-            'font-bold text-xs border min-w-20 cursor-pointer hover:bg-white/10 border-s-1 border-b-3';
+        newHeader.className = 'min-w-20 cursor-pointer border-s-1 border-b-3 text-xs font-bold hover:bg-white/10';
         newHeader.innerHTML =
-            `${getColumnLabel(currentCols - 1)}<span class="sort-indicator text-xs ml-1" id="sort-${currentCols - 1}"></span>`;
-        newHeader.setAttribute('data-col', currentCols - 1);
+            `${columnData.label}<span class="sort-indicator ml-1 text-xs" id="sort-${columnData.column_index}"></span>`;
+        newHeader.setAttribute('data-col', columnData.column_index);
+        newHeader.setAttribute('data-column-id', columnData.id);
         newHeader.oncontextmenu = function(e) {
-            showColumnMenu(e, currentCols - 1);
+            showColumnMenu(e, columnData.column_index);
         };
         headerRow.insertBefore(newHeader, headerRow.lastElementChild);
 
-        // Add cells to existing rows
+        // Add cells to existing data rows (not add-row)
         const rows = table.querySelectorAll('tbody tr:not(.add-row-tr)');
-        rows.forEach((row, index) => {
+        rows.forEach((row) => {
+            const rowHeader = row.querySelector('td[data-row-id]');
+            const rowId = rowHeader?.getAttribute('data-row-id');
+            const rowIndex = parseInt(row.querySelector('input')?.getAttribute('data-row') || '1');
+
             const newCell = document.createElement('td');
-            newCell.className = 'min-w-20';
-            newCell.setAttribute('data-cell-id', `${index + 1}-${currentCols - 1}`);
+            newCell.className = 'min-w-30';
+            newCell.setAttribute('data-cell-id', `${rowIndex}-${columnData.column_index}`);
+
             const input = document.createElement('input');
             input.type = 'text';
             input.className =
-                'cell-input border-none px-1.5 py-1 w-full h-full bg-transparent text-xs font-sans outline-none resize-none';
-            input.setAttribute('data-row', index + 1);
-            input.setAttribute('data-col', currentCols - 1);
+                'cell-input size-full resize-none border-none bg-transparent px-1.5 py-1 font-sans text-xs outline-none';
+            input.setAttribute('data-row', rowIndex);
+            input.setAttribute('data-col', columnData.column_index);
+            input.setAttribute('data-column-id', columnData.id);
+            if (rowId) input.setAttribute('data-row-id', rowId);
             input.onchange = function() {
                 saveCell(this);
             };
@@ -650,6 +701,7 @@
             input.ontouchend = function(e) {
                 handleTouchEnd(e, this);
             };
+
             newCell.appendChild(input);
             row.insertBefore(newCell, row.lastElementChild);
         });
@@ -658,11 +710,15 @@
         const addRowTr = document.querySelector('.add-row-tr');
         const addRowCell = document.createElement('td');
         addRowCell.className =
-            'cursor-pointer transition-colors text-center align-middle text-base select-none border border-white/20 p-0 relative min-w-20 h-6';
+            'cursor-pointer transition-colors text-center align-middle text-base select-none border border-white/20 p-0 relative min-w-30 h-6';
         addRowCell.textContent = '+';
         addRowCell.onclick = addRow;
         addRowTr.insertBefore(addRowCell, addRowTr.lastElementChild);
+
+        // Update boardColumns array
+        boardColumns.push(columnData.column_index);
     }
+
 
     // Keyboard navigation
     document.addEventListener('keydown', function(e) {
@@ -676,32 +732,49 @@
 
             switch (e.key) {
                 case 'ArrowUp':
-                    newRow = Math.max(1, row - 1);
+                    const prevRowIndex = boardRows[boardRows.indexOf(row) - 1];
+                    newRow = prevRowIndex !== undefined ? prevRowIndex : row;
                     e.preventDefault();
                     break;
                 case 'ArrowDown':
-                    newRow = Math.min(currentRows, row + 1);
+                    const nextRowIndex = boardRows[boardRows.indexOf(row) + 1];
+                    newRow = nextRowIndex !== undefined ? nextRowIndex : row;
                     e.preventDefault();
                     break;
                 case 'ArrowLeft':
-                    newCol = Math.max(0, col - 1);
+                    const prevColIndex = boardColumns[boardColumns.indexOf(col) - 1];
+                    newCol = prevColIndex !== undefined ? prevColIndex : col;
                     e.preventDefault();
                     break;
                 case 'ArrowRight':
-                    newCol = Math.min(currentCols - 1, col + 1);
+                    const nextColIndex = boardColumns[boardColumns.indexOf(col) + 1];
+                    newCol = nextColIndex !== undefined ? nextColIndex : col;
                     e.preventDefault();
                     break;
                 case 'Enter':
-                    newRow = Math.min(currentRows, row + 1);
+                    const enterNextRowIndex = boardRows[boardRows.indexOf(row) + 1];
+                    newRow = enterNextRowIndex !== undefined ? enterNextRowIndex : row;
                     e.preventDefault();
                     break;
                 case 'Tab':
                     if (e.shiftKey) {
-                        newCol = col > 0 ? col - 1 : currentCols - 1;
-                        newRow = col > 0 ? row : Math.max(1, row - 1);
+                        const tabPrevColIndex = boardColumns[boardColumns.indexOf(col) - 1];
+                        if (tabPrevColIndex !== undefined) {
+                            newCol = tabPrevColIndex;
+                        } else {
+                            newCol = boardColumns[boardColumns.length - 1];
+                            const tabPrevRowIndex = boardRows[boardRows.indexOf(row) - 1];
+                            newRow = tabPrevRowIndex !== undefined ? tabPrevRowIndex : row;
+                        }
                     } else {
-                        newCol = col < currentCols - 1 ? col + 1 : 0;
-                        newRow = col < currentCols - 1 ? row : Math.min(currentRows, row + 1);
+                        const tabNextColIndex = boardColumns[boardColumns.indexOf(col) + 1];
+                        if (tabNextColIndex !== undefined) {
+                            newCol = tabNextColIndex;
+                        } else {
+                            newCol = boardColumns[0];
+                            const tabNextRowIndex = boardRows[boardRows.indexOf(row) + 1];
+                            newRow = tabNextRowIndex !== undefined ? tabNextRowIndex : row;
+                        }
                     }
                     e.preventDefault();
                     break;

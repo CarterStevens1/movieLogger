@@ -40,4 +40,25 @@ class Board extends Model
     {
         return $this->belongsToMany(User::class, 'board_user');
     }
+
+    // Columns
+    public function columns()
+    {
+        return $this->hasMany(BoardColumns::class)->orderBy('position');
+    }
+
+    // Rows
+    public function rows()
+    {
+        return $this->hasMany(BoardRows::class)->orderBy('position');
+    }
+
+    // Update the boot method to create both columns and rows
+    protected static function booted()
+    {
+        static::created(function ($board) {
+            BoardColumns::createInitialColumns($board->id);
+            BoardRows::createInitialRows($board->id);
+        });
+    }
 }
