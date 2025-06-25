@@ -22,7 +22,17 @@
             <div class="flex flex-wrap justify-center">
                 <div class="flex items-center gap-6 pt-6">
                     @php
-                        $tagsArray = explode(',', $board->tags);
+                        $tagsArray = collect(explode(',', $board->tags))
+                            ->filter() // Remove empty values
+                            ->map(function ($tag, $index) {
+                                $colors = ['#ef4444', '#f59e0b', '#10b981', '#6366f1', '#8b5cf6', '#ec4899', '#06b6d4'];
+                                return [
+                                    'name' => trim($tag),
+                                    'color' => $colors[$index % count($colors)],
+                                ];
+                            })
+                            ->values()
+                            ->toArray();
                     @endphp
                     @foreach ($tagsArray as $tag)
                         <x-tag :tag="$tag" class="rounded-2xl" />
