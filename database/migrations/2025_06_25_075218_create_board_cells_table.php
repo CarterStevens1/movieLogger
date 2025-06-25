@@ -13,10 +13,15 @@ return new class extends Migration
     {
         Schema::create('board_cells', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('board_column_id')->constrained()->onDelete('cascade');
+            $table->foreignId('board_id')->constrained()->onDelete('cascade');
             $table->foreignId('board_row_id')->constrained()->onDelete('cascade');
+            $table->foreignId('board_column_id')->constrained()->onDelete('cascade');
             $table->text('value')->nullable();
+            $table->json('tag_config')->nullable(); // Store tag information
             $table->timestamps();
+
+            // Ensure unique cell per row/column combination
+            $table->unique(['board_row_id', 'board_column_id']);
         });
     }
 

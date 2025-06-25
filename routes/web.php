@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\BoardCellsController;
 use App\Http\Controllers\BoardColumnsController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\BoardRowsController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisteredUserController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
@@ -16,6 +18,8 @@ Route::get('my-boards', [BoardController::class, 'index'])->middleware('auth')->
 Route::get('boards/create', [BoardController::class, 'create'])->middleware('auth')->name('boards.create');
 Route::post('boards/create', [BoardController::class, 'store'])->middleware('auth');
 
+
+
 Route::middleware(['auth'])->group(function () {
     // Existing column routes
     Route::post('/board-columns', [BoardColumnsController::class, 'store']);
@@ -26,6 +30,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/board-rows', [BoardRowsController::class, 'store']);
     Route::patch('/board-rows/reorder', [BoardRowsController::class, 'reorder']);
     Route::delete('/board-rows/{row}', [BoardRowsController::class, 'destroy']);
+
+    Route::post('/board-cells', [BoardCellsController::class, 'store']);
+    Route::patch('/board-cells/{cell}', [BoardCellsController::class, 'update']);
+    Route::post('/board-cells/bulk', [BoardCellsController::class, 'bulkStore']);
+
+    Route::post('/board-cells/reorder', [BoardCellsController::class, 'reorder']);
 });
 
 // Check if ID of user is the same as the user_id of the board

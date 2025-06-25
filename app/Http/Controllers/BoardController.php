@@ -53,8 +53,10 @@ class BoardController extends Controller
      */
     public function show(string $id)
     {
+
         // Check if user is the same as the user_id of the board
         $board = Board::find($id);
+        $board->load(['columns', 'rows', 'cells.boardRow', 'cells.boardColumn']);
         return view('boards.show', compact('board'));
     }
 

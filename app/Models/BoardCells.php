@@ -4,20 +4,37 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class BoardCells extends Model
 {
     /** @use HasFactory<\Database\Factories\BoardCellsFactory> */
     use HasFactory;
 
-    public function boardColumns(): BelongsToMany
+    protected $fillable = [
+        'board_id',
+        'board_row_id',
+        'board_column_id',
+        'value',
+        'tag_config'
+    ];
+
+    protected $casts = [
+        'tag_config' => 'array'
+    ];
+
+    public function board(): BelongsTo
     {
-        return $this->belongsToMany(BoardColumns::class);
+        return $this->belongsTo(Board::class);
     }
 
-    public function boardRows(): BelongsToMany
+    public function boardRow(): BelongsTo
     {
-        return $this->belongsToMany(BoardRows::class);
+        return $this->belongsTo(BoardRows::class);
+    }
+
+    public function boardColumn(): BelongsTo
+    {
+        return $this->belongsTo(BoardColumns::class);
     }
 }

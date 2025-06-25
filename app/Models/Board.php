@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -42,15 +41,20 @@ class Board extends Model
     }
 
     // Columns
-    public function columns()
+    public function columns(): HasMany
     {
         return $this->hasMany(BoardColumns::class)->orderBy('position');
     }
 
     // Rows
-    public function rows()
+    public function rows(): HasMany
     {
         return $this->hasMany(BoardRows::class)->orderBy('position');
+    }
+
+    public function cells(): HasMany
+    {
+        return $this->hasMany(BoardCells::class);
     }
 
     // Update the boot method to create both columns and rows

@@ -116,12 +116,59 @@
     let boardId = {{ $board->id }};
     let boardColumns = @json($board->columns->pluck('column_index')->toArray());
     let boardRows = @json($board->rows->pluck('row_index')->toArray());
+    let existingCells = @json(
+        $board->cells->keyBy(function ($cell) {
+            return $cell->boardRow->row_index . '-' . $cell->boardColumn->column_index;
+        }));
 
     let activeCell = null;
     let activeColumn = null;
     let touchStartTime = 0;
     let touchTimer = null;
     let touchMoved = false;
+    let saveTimeouts = {};
+    let pendingCellSaves = {};
+    let autoSaveInterval;
+    let hasUnsavedChanges = false;
+
+    Object.entries(existingCells).forEach(([key, cellData]) => {
+        const [row, col] = key.split('-');
+        const input = document.querySelector(`input[data-row="${row}"][data-col="${col}"]`);
+
+        if (input && cellData) {
+            // Set value
+            if (cellData.value) {
+                input.value = cellData.value;
+                tableData[key] = cellData.value;
+            }
+
+            // Set cell ID for future updates
+            input.setAttribute('data-cell-id', cellData.id);
+
+            // Apply tag if exists
+            if (cellData.tag_config) {
+                const cell = input.parentElement;
+                cell.style.backgroundColor = cellData.tag_config.color;
+
+                if (isDarkColor(cellData.tag_config.color)) {
+                    input.style.color = 'white';
+                } else {
+                    input.style.color = 'black';
+                }
+
+                cellTags[key] = cellData.tag_config;
+            }
+        }
+    });
+
+    function startAutoSave() {
+        autoSaveInterval = setInterval(async () => {
+            if (hasUnsavedChanges) {
+                await saveAllPendingCells();
+                hasUnsavedChanges = false;
+            }
+        }, 10000); // Auto-save every 10 seconds
+    }
 
 
     // Mobile touch handlers
@@ -289,10 +336,102 @@
     async function sortColumn(direction) {
         if (activeColumn === null) return;
 
-        // Your existing sort logic here...
-        // ... (keep all the existing sorting code)
+        // Get all rows except the header and add-row
+        const tableBody = document.getElementById('tableBody');
+        const rows = Array.from(tableBody.querySelectorAll('tr:not(.add-row-tr)'));
 
-        // After sorting, save to database
+        // Get column index in the boardColumns array
+        const colIndex = boardColumns.indexOf(activeColumn);
+
+        if (colIndex === -1) return;
+
+        // Create array of row data with original positions
+        const rowData = rows.map((row, index) => {
+            const cellInput = row.children[colIndex + 1]?.querySelector('input');
+            const value = (cellInput?.value || '').toString().toLowerCase();
+            const rowId = row.getAttribute('data-row-id'); // Assuming you have row IDs
+
+            return {
+                row: row,
+                value: value,
+                originalIndex: index,
+                rowId: rowId
+            };
+        });
+
+        // Sort the data array
+        rowData.sort((a, b) => {
+            if (direction === 'asc') {
+                return a.value.localeCompare(b.value);
+            } else {
+                return b.value.localeCompare(a.value);
+            }
+        });
+
+        // Update the actual data positions in the database
+        const updates = [];
+        rowData.forEach((item, newIndex) => {
+            if (item.rowId) {
+                updates.push({
+                    rowId: item.rowId,
+                    newPosition: newIndex + 1 // Positions usually start from 1
+                });
+            }
+        });
+
+        // Send position updates to database
+        try {
+            await fetch('/board-cells/reorder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                        'content')
+                },
+                body: JSON.stringify({
+                    updates: updates
+                })
+            });
+        } catch (error) {
+            console.error('Error updating row positions:', error);
+            return; // Don't update UI if database update fails
+        }
+
+        // Update the UI based on new positions
+        // Clear existing rows from tbody (except add-row)
+        const addRowTr = tableBody.querySelector('.add-row-tr');
+        tableBody.innerHTML = '';
+
+        // Re-append rows in sorted order but update their row numbers
+        rowData.forEach((item, index) => {
+            const row = item.row;
+            // Update the row number cell (first cell)
+            const rowNumberCell = row.children[0];
+            if (rowNumberCell) {
+                rowNumberCell.textContent = index + 1; // Update row number
+            }
+
+            // Update any data attributes that track position
+            row.setAttribute('data-position', index + 1);
+
+            tableBody.appendChild(row);
+        });
+
+        // Re-append add-row at the end
+        if (addRowTr) {
+            tableBody.appendChild(addRowTr);
+        }
+
+        // Clear all sort indicators first
+        clearSortIndicators();
+
+        // Update sort indicator for active column
+        const indicator = document.getElementById(`sort-${activeColumn}`);
+        if (indicator) {
+            indicator.textContent = direction === 'asc' ? '↑' : '↓';
+        }
+
+        // Save sort config to database
         const columnElement = document.querySelector(`th[data-col="${activeColumn}"]`);
         const columnId = columnElement?.getAttribute('data-column-id');
 
@@ -384,22 +523,54 @@
         }
 
         // Wait a moment for DOM updates, then populate data
-        setTimeout(() => {
+        setTimeout(async () => {
+            const cellsToSave = [];
+
             data.forEach((row, rowIndex) => {
                 row.forEach((cellValue, colIndex) => {
                     const actualRowIndex = boardRows[rowIndex];
                     const actualColIndex = boardColumns[colIndex];
-                    if (actualRowIndex !== undefined && actualColIndex !== undefined) {
+                    if (actualRowIndex !== undefined && actualColIndex !== undefined &&
+                        cellValue.trim() !== '') {
                         const input = document.querySelector(
                             `input[data-row="${actualRowIndex}"][data-col="${actualColIndex}"]`
                         );
                         if (input) {
                             input.value = cellValue;
-                            saveCell(input);
+                            const rowId = input.getAttribute('data-row-id');
+                            const columnId = input.getAttribute('data-column-id');
+
+                            if (rowId && columnId) {
+                                cellsToSave.push({
+                                    board_row_id: parseInt(rowId),
+                                    board_column_id: parseInt(columnId),
+                                    value: cellValue
+                                });
+                            }
                         }
                     }
                 });
             });
+
+            // Bulk save all cells at once
+            if (cellsToSave.length > 0) {
+                try {
+                    await fetch('/board-cells/bulk', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                ?.getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            board_id: boardId,
+                            cells: cellsToSave
+                        })
+                    });
+                } catch (error) {
+                    console.error('Error bulk saving cells:', error);
+                }
+            }
         }, 100);
     }
 
@@ -480,6 +651,9 @@
             } else {
                 activeCell.style.color = 'black';
             }
+
+            // Save to database
+            saveCellTag(activeCell, tag);
         }
         hideTagMenu();
     }
@@ -497,6 +671,9 @@
             const cell = activeCell.parentElement;
             cell.style.backgroundColor = '';
             activeCell.style.color = '';
+
+            // Save to database (null tag_config)
+            saveCellTag(activeCell, null);
         }
         hideTagMenu();
     }
@@ -532,13 +709,167 @@
     }
 
     // Save cell data
-    function saveCell(input) {
+    async function saveCell(input) {
         const row = input.getAttribute('data-row');
         const col = input.getAttribute('data-col');
         const key = `${row}-${col}`;
+
+        // Store the current value locally immediately
         tableData[key] = input.value;
+
+        // Clear existing timeout for this cell
+        if (saveTimeouts[key]) {
+            clearTimeout(saveTimeouts[key]);
+        }
+
+        // Set a new timeout to save after 500ms of no changes
+        saveTimeouts[key] = setTimeout(async () => {
+            const rowId = input.getAttribute('data-row-id');
+            const columnId = input.getAttribute('data-column-id');
+            const value = input.value;
+
+            try {
+                const response = await fetch('/board-cells', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        board_id: boardId,
+                        board_row_id: parseInt(rowId),
+                        board_column_id: parseInt(columnId),
+                        value: value
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    input.setAttribute('data-cell-id', data.cell.id);
+                }
+            } catch (error) {
+                console.error('Error saving cell:', error);
+            }
+
+            // Clean up
+            delete saveTimeouts[key];
+        }, 500); // Wait 500ms after last change
     }
 
+    // Add new function for saving cell tags
+    async function saveCellTag(input, tagConfig) {
+        const cellId = input.getAttribute('data-cell-id');
+        const rowId = input.getAttribute('data-row-id');
+        const columnId = input.getAttribute('data-column-id');
+
+        try {
+            let response;
+
+            if (cellId) {
+                // Update existing cell
+                response = await fetch(`/board-cells/${cellId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                            'content')
+                    },
+                    body: JSON.stringify({
+                        tag_config: tagConfig
+                    })
+                });
+            } else {
+                // Create new cell with tag
+                response = await fetch('/board-cells', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                            'content')
+                    },
+                    body: JSON.stringify({
+                        board_id: boardId,
+                        board_row_id: parseInt(rowId),
+                        board_column_id: parseInt(columnId),
+                        value: input.value || '',
+                        tag_config: tagConfig
+                    })
+                });
+            }
+
+            if (response.ok) {
+                const data = await response.json();
+                input.setAttribute('data-cell-id', data.cell.id);
+            }
+        } catch (error) {
+            console.error('Error saving cell tag:', error);
+        }
+    }
+    async function saveAllPendingCells() {
+        const cellsToSave = [];
+
+        document.querySelectorAll('.cell-input').forEach(input => {
+            if (input.value.trim() !== '' && !input.getAttribute('data-cell-id')) {
+                const rowId = input.getAttribute('data-row-id');
+                const columnId = input.getAttribute('data-column-id');
+
+                if (rowId && columnId) {
+                    cellsToSave.push({
+                        board_row_id: parseInt(rowId),
+                        board_column_id: parseInt(columnId),
+                        value: input.value
+                    });
+                }
+            }
+        });
+
+        if (cellsToSave.length > 0) {
+            try {
+                const response = await fetch('/board-cells/bulk', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                            'content')
+                    },
+                    body: JSON.stringify({
+                        board_id: boardId,
+                        cells: cellsToSave
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    // Update cell IDs
+                    data.cells.forEach((cell, index) => {
+                        if (cellsToSave[index]) {
+                            const input = document.querySelector(
+                                `input[data-row-id="${cell.board_row_id}"][data-column-id="${cell.board_column_id}"]`
+                            );
+                            if (input) {
+                                input.setAttribute('data-cell-id', cell.id);
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error auto-saving cells:', error);
+            }
+        }
+    }
+
+    // Start auto-save when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        startAutoSave();
+    });
+
+    // Mark changes as unsaved
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('cell-input')) {
+            hasUnsavedChanges = true;
+        }
+    });
     // Add new row
     async function addRow() {
         try {
