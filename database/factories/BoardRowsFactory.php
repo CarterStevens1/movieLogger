@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Board;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,6 +19,12 @@ class BoardRowsFactory extends Factory
     {
         return [
             //
+            'board_id' => Board::factory(),
+            'row_index' => 0,
+            'label' => fake()->unique()->word,
+            'position' => 0,
+            'is_visible' => true,
+            'sort_config' => [],
         ];
     }
 }

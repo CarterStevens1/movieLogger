@@ -20,10 +20,12 @@ class BoardColumnsFactory extends Factory
     {
         return [
             //
-            'user_id' => User::factory(),
             'board_id' => Board::factory(),
-            'position' => 1,
-            //
+            'column_index' => 0,
+            'label' => fake()->unique()->word,
+            'position' => 0,
+            'is_visible' => true,
+            'sort_config' => [],
         ];
     }
 }

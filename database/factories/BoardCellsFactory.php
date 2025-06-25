@@ -2,6 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Board;
+use App\Models\BoardColumns;
+use App\Models\BoardRows;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,6 +21,11 @@ class BoardCellsFactory extends Factory
     {
         return [
             //
+            'board_id' => Board::factory(),
+            'board_row_id' => BoardRows::factory(),
+            'board_column_id' => BoardColumns::factory(),
+            'value' => fake()->unique()->word,
+            'tag_config' => [],
         ];
     }
 }
