@@ -31,7 +31,7 @@ class BoardColumns extends Model
     {
         return $this->belongsTo(Board::class);
     }
-
+    // Generate labels for columns a-z aa-zz aaa-zzz etc.
     public static function generateLabel($index)
     {
         $result = '';
@@ -41,7 +41,7 @@ class BoardColumns extends Model
         }
         return $result;
     }
-
+    // Initially create 20 columns on board creation
     public static function createInitialColumns($boardId, $count = 20)
     {
         for ($i = 0; $i < $count; $i++) {

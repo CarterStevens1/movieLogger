@@ -57,7 +57,7 @@ class Board extends Model
         return $this->hasMany(BoardCells::class);
     }
 
-    // Update the boot method to create both columns and rows
+    // boot method to create both columns and rows
     protected static function booted()
     {
         static::created(function ($board) {

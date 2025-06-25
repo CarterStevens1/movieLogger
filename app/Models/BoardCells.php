@@ -22,17 +22,17 @@ class BoardCells extends Model
     protected $casts = [
         'tag_config' => 'array'
     ];
-
+    // belongs to boards
     public function board(): BelongsTo
     {
         return $this->belongsTo(Board::class);
     }
-
+    // belongs to board rows
     public function boardRow(): BelongsTo
     {
         return $this->belongsTo(BoardRows::class);
     }
-
+    // belongs to board columns
     public function boardColumn(): BelongsTo
     {
         return $this->belongsTo(BoardColumns::class);

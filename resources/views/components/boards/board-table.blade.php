@@ -1,6 +1,6 @@
 @props(['board'])
 @php
-    // Method 1: Simple conversion with default colors
+    // Conver tags to array of objects with base colors assigned - Ideally colors should be dynamically generated
     $tagsArray = collect(explode(',', $board->tags))
         ->filter() // Remove empty values
         ->map(function ($tag, $index) {
@@ -17,7 +17,7 @@
 <!-- Hidden file input for CSV import -->
 <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="importCSV(event)">
 
-<!-- Tag menu-->
+<!-- Tag menu for applying tags to cells-->
 <div id="contextMenu" class="hidden fixed bg-white border border-gray-300 rounded shadow-lg z-50 py-2 min-w-40">
     <div class="px-3 py-1 text-xs font-semibold text-gray-500 border-b border-gray-200 mb-1 pb-3">Apply Tag
     </div>
@@ -107,19 +107,19 @@
 </div>
 
 <script>
-    // Add to your existing script section
+    // Get current rows and columns from database
     let currentRows = {{ $board->rows->count() }};
     let currentCols = {{ $board->columns->count() }};
-    let tableData = {};
-    let cellTags = {};
-    let tags = @json($tagsArray ?? []);
-    let boardId = {{ $board->id }};
-    let boardColumns = @json($board->columns->pluck('column_index')->toArray());
-    let boardRows = @json($board->rows->pluck('row_index')->toArray());
+    let tableData = {}; // Stores the current values of each cell
+    let cellTags = {}; // Stores the tags of each cell
+    let tags = @json($tagsArray ?? []); //convert tags to json to be used in the script
+    let boardId = {{ $board->id }}; // Get Board ID from database
+    let boardColumns = @json($board->columns->pluck('column_index')->toArray()); //Get board columns indexs from database
+    let boardRows = @json($board->rows->pluck('row_index')->toArray()); //Get board rows indexs from database
     let existingCells = @json(
         $board->cells->keyBy(function ($cell) {
             return $cell->boardRow->row_index . '-' . $cell->boardColumn->column_index;
-        }));
+        })); // Get existing cells from database
 
     let activeCell = null;
     let activeColumn = null;
@@ -128,7 +128,7 @@
     let touchMoved = false;
     let saveTimeouts = {};
     let pendingCellSaves = {};
-    let autoSaveInterval;
+    let autoSaveInterval; //Auto save interval to reduce overload
     let hasUnsavedChanges = false;
 
     Object.entries(existingCells).forEach(([key, cellData]) => {
@@ -161,6 +161,7 @@
         }
     });
 
+    // Function to start the auto save interval to reduce server load
     function startAutoSave() {
         autoSaveInterval = setInterval(async () => {
             if (hasUnsavedChanges) {
@@ -206,6 +207,7 @@
         });
     }
 
+    // Function to handle touch end events
     function handleTouchEnd(event, input) {
         const touchDuration = Date.now() - touchStartTime;
 
@@ -223,7 +225,7 @@
             }
         }
     }
-
+    // Function to handle touch move events
     function handleTouchMove(event) {
         touchMoved = true;
         if (touchTimer) {
@@ -232,7 +234,7 @@
         }
     }
 
-    // Show context menu
+    // Show context menu using the tags
     function showTagMenu(event, input) {
         event.preventDefault();
         activeCell = input;
@@ -325,14 +327,14 @@
         document.getElementById('contextMenu').classList.add('hidden');
         activeCell = null;
     }
-
+    // Hide column context menu
     function hideColumnMenu() {
         document.getElementById('columnContextMenu').classList.add('hidden');
         activeColumn = null;
     }
 
 
-    // Sort columns by a-z or z-a
+    // Sort columns by a-z or z-a at the top of the column
     async function sortColumn(direction) {
         if (activeColumn === null) return;
 
@@ -530,7 +532,7 @@
         };
         reader.readAsText(file);
     }
-
+    // Parse CSV data
     function parseCSV(csvData) {
         const lines = csvData.split('\n');
         const data = lines.map(line => {
@@ -726,7 +728,7 @@
         hideTagMenu();
     }
 
-    // Check if color is dark
+    // Check if color is dark and convert text if so
     function isDarkColor(color) {
         const hex = color.replace('#', '');
         const r = parseInt(hex.substr(0, 2), 16);
@@ -746,15 +748,6 @@
         }
     });
 
-    // Generate column label (A, B, C, ..., Z, AA, AB, etc.)
-    function getColumnLabel(index) {
-        let result = '';
-        while (index >= 0) {
-            result = String.fromCharCode(65 + (index % 26)) + result;
-            index = Math.floor(index / 26) - 1;
-        }
-        return result;
-    }
 
     // Save cell data
     async function saveCell(input) {
@@ -854,6 +847,8 @@
             console.error('Error saving cell tag:', error);
         }
     }
+
+    // Function fo saving pending cells in the auto save interval
     async function saveAllPendingCells() {
         const cellsToSave = [];
 
@@ -1102,71 +1097,72 @@
     // Keyboard navigation
     document.addEventListener('keydown', function(e) {
         const activeElement = document.activeElement;
-        if (activeElement && activeElement.classList.contains('cell-input')) {
-            const row = parseInt(activeElement.getAttribute('data-row'));
-            const col = parseInt(activeElement.getAttribute('data-col'));
+        if (!activeElement?.classList.contains('cell-input')) return;
 
-            let newRow = row;
-            let newCol = col;
+        const row = parseInt(activeElement.getAttribute('data-row'));
+        const col = parseInt(activeElement.getAttribute('data-col'));
+        const rowIndex = boardRows.indexOf(row);
+        const colIndex = boardColumns.indexOf(col);
 
-            switch (e.key) {
-                case 'ArrowUp':
-                    const prevRowIndex = boardRows[boardRows.indexOf(row) - 1];
-                    newRow = prevRowIndex !== undefined ? prevRowIndex : row;
-                    e.preventDefault();
-                    break;
-                case 'ArrowDown':
-                    const nextRowIndex = boardRows[boardRows.indexOf(row) + 1];
-                    newRow = nextRowIndex !== undefined ? nextRowIndex : row;
-                    e.preventDefault();
-                    break;
-                case 'ArrowLeft':
-                    const prevColIndex = boardColumns[boardColumns.indexOf(col) - 1];
-                    newCol = prevColIndex !== undefined ? prevColIndex : col;
-                    e.preventDefault();
-                    break;
-                case 'ArrowRight':
-                    const nextColIndex = boardColumns[boardColumns.indexOf(col) + 1];
-                    newCol = nextColIndex !== undefined ? nextColIndex : col;
-                    e.preventDefault();
-                    break;
-                case 'Enter':
-                    const enterNextRowIndex = boardRows[boardRows.indexOf(row) + 1];
-                    newRow = enterNextRowIndex !== undefined ? enterNextRowIndex : row;
-                    e.preventDefault();
-                    break;
-                case 'Tab':
-                    if (e.shiftKey) {
-                        const tabPrevColIndex = boardColumns[boardColumns.indexOf(col) - 1];
-                        if (tabPrevColIndex !== undefined) {
-                            newCol = tabPrevColIndex;
-                        } else {
-                            newCol = boardColumns[boardColumns.length - 1];
-                            const tabPrevRowIndex = boardRows[boardRows.indexOf(row) - 1];
-                            newRow = tabPrevRowIndex !== undefined ? tabPrevRowIndex : row;
-                        }
+        let newRow = row;
+        let newCol = col;
+
+        const getArrayValue = (array, index, fallback) =>
+            array[index] !== undefined ? array[index] : fallback;
+
+        // Helper function to wrap around array bounds
+        const wrapIndex = (array, index) =>
+            index < 0 ? array.length - 1 : index >= array.length ? 0 : index;
+
+        const navigationHandlers = {
+            'ArrowUp': () => {
+                newRow = getArrayValue(boardRows, rowIndex - 1, row);
+            },
+            'ArrowDown': () => {
+                newRow = getArrayValue(boardRows, rowIndex + 1, row);
+            },
+            'ArrowLeft': () => {
+                newCol = getArrayValue(boardColumns, colIndex - 1, col);
+            },
+            'ArrowRight': () => {
+                newCol = getArrayValue(boardColumns, colIndex + 1, col);
+            },
+            'Enter': () => {
+                newRow = getArrayValue(boardRows, rowIndex + 1, row);
+            },
+            'Tab': () => {
+                if (e.shiftKey) {
+                    // Shift+Tab: Move backward
+                    if (colIndex > 0) {
+                        newCol = boardColumns[colIndex - 1];
                     } else {
-                        const tabNextColIndex = boardColumns[boardColumns.indexOf(col) + 1];
-                        if (tabNextColIndex !== undefined) {
-                            newCol = tabNextColIndex;
-                        } else {
-                            newCol = boardColumns[0];
-                            const tabNextRowIndex = boardRows[boardRows.indexOf(row) + 1];
-                            newRow = tabNextRowIndex !== undefined ? tabNextRowIndex : row;
-                        }
+                        newCol = boardColumns[boardColumns.length - 1];
+                        newRow = getArrayValue(boardRows, rowIndex - 1, row);
                     }
-                    e.preventDefault();
-                    break;
+                } else {
+                    // Tab: Move forward
+                    if (colIndex < boardColumns.length - 1) {
+                        newCol = boardColumns[colIndex + 1];
+                    } else {
+                        newCol = boardColumns[0];
+                        newRow = getArrayValue(boardRows, rowIndex + 1, row);
+                    }
+                }
             }
+        };
 
+        const handler = navigationHandlers[e.key];
+        if (handler) {
+            e.preventDefault();
+            handler();
+
+            // Focus new cell if position changed
             if (newRow !== row || newCol !== col) {
                 const nextInput = document.querySelector(
                     `input[data-row="${newRow}"][data-col="${newCol}"]`
                 );
-                if (nextInput) {
-                    nextInput.focus();
-                    nextInput.select();
-                }
+                nextInput?.focus();
+                nextInput?.select();
             }
         }
     });
