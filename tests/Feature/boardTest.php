@@ -110,21 +110,6 @@ it('can unshare a board with another user', function () {
     expect($board->sharedUsers()->where('user_id', $user2->id)->exists())->toBeFalse();
 });
 
-// it('can add columns and rows to a board', function () {
-
-//     // Create a user
-//     $user = User::factory()->create();
-//     // Authenticate the user
-//     login($user);
-//     // Create a board
-//     $board = Board::factory()->create();
-//     // Assign the board to the user
-//     $board->user()->associate($user);
-//     // Create a column and add it to the board  
-//     // Create a row and add it to the board
-//     // Assert that the column and row were added
-// });
-
 it('has base columns on board creation', function () {
     // Create a user
     $user = User::factory()->create();
@@ -166,4 +151,36 @@ describe('Row Name Generation', function () {
         expect(BoardRows::generateLabel(11))->toBe('11');
         expect(BoardRows::generateLabel(20))->toBe('20');
     });
+});
+
+it('can add column to board with default columns', function () {
+    // Create a user
+    $user = User::factory()->create();
+    // Authenticate the user
+    login($user);
+    // Create a board
+    $board = Board::factory()->create();
+    // Add a column to the board
+    $column = BoardColumns::factory()->create([
+        'board_id' => $board->id,
+        'label' => 'Test Column',
+    ]);
+
+    expect($board->fresh()->columns->count())->toBe(21);
+});
+
+it('can add row to board with default rows', function () {
+    // Create a user
+    $user = User::factory()->create();
+    // Authenticate the user
+    login($user);
+    // Create a board
+    $board = Board::factory()->create();
+    // Add a row to the board
+    $row = BoardRows::factory()->create([
+        'board_id' => $board->id,
+        'label' => 'Test Row',
+    ]);
+
+    expect($board->fresh()->rows->count())->toBe(51);
 });

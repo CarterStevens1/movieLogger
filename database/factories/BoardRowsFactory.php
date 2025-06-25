@@ -20,11 +20,10 @@ class BoardRowsFactory extends Factory
         return [
             //
             'board_id' => Board::factory(),
-            'row_index' => 0,
+            'row_index' => $this->faker->unique()->numberBetween(0, 100),
             'label' => fake()->unique()->word,
-            'position' => 0,
+            'position' => fake()->numberBetween(0, 10),
             'is_visible' => true,
-            'sort_config' => [],
         ];
     }
 }

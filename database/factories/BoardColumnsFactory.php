@@ -21,9 +21,9 @@ class BoardColumnsFactory extends Factory
         return [
             //
             'board_id' => Board::factory(),
-            'column_index' => 0,
-            'label' => fake()->unique()->word,
-            'position' => 0,
+            'column_index' => $this->faker->unique()->numberBetween(0, 100),
+            'label' => fake()->word(), // Changed from 'label' to match your test
+            'position' => fake()->numberBetween(0, 10),
             'is_visible' => true,
             'sort_config' => [],
         ];
