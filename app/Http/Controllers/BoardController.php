@@ -4,13 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Board;
 use App\Models\BoardCells;
-use App\Models\BoardRows;
 use App\Models\User;
-use Error;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
 class BoardController extends Controller
@@ -25,9 +21,7 @@ class BoardController extends Controller
         $user = Auth::user();
         $sharedBoards = $user->sharedBoards()->get();
 
-        return view('boards', [
-            'boards' => $boards,
-        ], compact('sharedBoards'));
+        return view('boards', compact(['sharedBoards', 'boards']));
     }
 
 

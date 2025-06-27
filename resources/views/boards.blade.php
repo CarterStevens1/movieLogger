@@ -3,7 +3,8 @@
 <x-layout>
     <div class="flex justify-between items-center pb-8">
         <x-page-heading class="text-center mb-0!">Dashboard</x-page-heading>
-        <x-button href="{{ Route('boards.create') }}" class="mx-0! ms-auto!">Create a new board</x-button>
+        <x-global.button href="{{ Route('boards.create') }}" class="mx-0! ms-auto!">Create a new
+            board</x-global.button>
     </div>
     <hr class="w-full border-t border-white/10">
 

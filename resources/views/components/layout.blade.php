@@ -17,54 +17,28 @@
     <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..600;1,100..600&display=swap"
         rel="stylesheet">
     <title>Boardchive | Board tracking made simple</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body class="bg-[#191919] text-white">
-    <div class="px-10">
-        {{-- <nav class="relative z-1 flex justify-between items-center py-4 border-b border-white/10">
-            <div class="font-bold">
-                <a href="{{ url('/') }}">
-                    <a href="{{ url('/') }}">Home</a>
-                </a>
+
+
+    <div id="wrapper">
+        <x-navigation.mobile-navigation />
+        <div class="flex">
+            <x-navigation.navigation />
+            <div class="basis-full">
+                <main class="mt-10 max-w-[1400px] h-screen px-10">
+                    {{ $slot }}
+                </main>
+                <x-footer />
             </div>
-            @auth
-                <div class="space-x-6 font-bold">
-                    <a href="{{ url('/my-boards') }}">Boards</a>
-                </div>
-
-                <div class="space-x-6 font-bold flex">
-                    <a href="{{ url('/edit') }}">Edit</a>
-                    <form method="POST" action="/logout">
-                        @csrf
-                        @method('POST')
-                        <button class="cursor-pointer">Log Out</button>
-                    </form>
-                </div>
-
-            @endauth
-
-            @guest
-                <div class="space-x-6 font-bold">
-                    <a href="{{ url('/register') }}">Sign Up</a>
-                    <a href="{{ url('/login') }}">Log In</a>
-                </div>
-            @endguest
-
-        </nav> --}}
-
-        <main class="mt-10 max-w-[1400px] mx-auto min-h-[100vh]">
-            {{ $slot }}
-        </main>
-
-        <footer class="bg-white/10 py-20 px-10">
-            <div>
-                <p class="mb-0">© @php
-                    echo date('Y');
-                @endphp Boardchive, All rights reserved.</p>
-            </div>
-
-        </footer>
+        </div>
     </div>
     @yield('content')
     @livewireScripts
