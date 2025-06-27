@@ -14,7 +14,7 @@
         </div>
         <div class="pt-8">
             <p class="text-sm">{{ $board->created_at->format('j M Y') }}</p>
-            <h3 class="group-hover:text-blue-600 text-xl font-bold transition-all duration-300">
+            <h3 class="group-hover:text-green-500 text-xl font-bold transition-all duration-300">
                 {{ $board->name }}
             </h3>
             <p>{{ $board->description }}</p>

@@ -1,4 +1,4 @@
-<footer class="bg-white/10 py-20 px-10 w-full">
+<footer class="border-t border-white/10 py-20 px-10 w-full">
     <div>
         <p class="mb-0">© @php
             echo date('Y');

@@ -1,10 +1,11 @@
  @props(['tag', 'size' => 'base'])
 
  @php
+     $classes = 'font-bold';
      if ($size === 'base') {
-         $classes = ' text-sm px-5 py-1';
+         $classes .= ' text-sm px-5 py-1';
      } elseif ($size === 'small') {
-         $classes = ' text-2xs px-3 py-1';
+         $classes .= ' text-2xs px-3 py-1';
      }
  @endphp
 

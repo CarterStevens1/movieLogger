@@ -14,9 +14,6 @@
         ->toArray();
 @endphp
 
-<!-- Hidden file input for CSV import -->
-<input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="importCSV(event)">
-
 <!-- Tag menu-->
 <div id="contextMenu" class="hidden fixed bg-white border border-gray-300 rounded shadow-lg z-50 py-2 min-w-40">
     <div class="px-3 py-1 text-xs font-semibold text-gray-500 border-b border-gray-200 mb-1 pb-3">Apply Tag
@@ -25,17 +22,6 @@
     <div class="border-t border-gray-200 mt-1 pt-1">
         <div class="px-3 py-1 hover:bg-gray-100 cursor-pointer text-sm text-red-600" onclick="removeTag()">Remove Tag
         </div>
-    </div>
-    <div class="space-y-3 px-3 border-t border-gray-200 mt-1 pt-1">
-        <p class="px-3 py-1 text-xs font-semibold text-gray-500 border-b border-gray-200 mb-1 pb-3">Options</p>
-        <button onclick="document.getElementById('csvFileInput').click()"
-            class="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition-colors text-sm">
-            Import CSV
-        </button>
-        <button onclick="exportCSV()"
-            class="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700 transition-colors text-sm">
-            Export CSV
-        </button>
     </div>
 </div>
 
@@ -51,63 +37,70 @@
     </div>
 </div>
 
-<div class="rounded overflow-auto max-h-screen shadow-md">
-    <table class="border-collapse w-full min-w-max" id="excelTable">
-        <thead>
-            <tr id="headerRow" class="[&_th]:h-6 [&_th]:relative [&_th]:border-white/20 [&_th]:p-0 [&_th]:text-center">
-                <th class="w-10 min-w-10 border-b-2 text-xs font-bold">
-                </th>
-                @foreach ($board->columns as $column)
-                    <th class="min-w-20 cursor-pointer border-s-1 border-b-3 text-xs font-bold hover:bg-white/10"
-                        oncontextmenu="showColumnMenu(event, {{ $column->column_index }})"
-                        data-col="{{ $column->column_index }}" data-column-id="{{ $column->id }}">
-                        {{ $column->label }}
-                        <span class="sort-indicator ml-1 text-xs" id="sort-{{ $column->column_index }}">
-                            @if ($column->sort_config)
-                                {{ $column->sort_config['direction'] === 'asc' ? '↑' : '↓' }}
-                            @endif
-                        </span>
+<div class="rounded shadow-md w-full overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="border-collapse table-auto min-w-full" id="excelTable">
+            <thead>
+                <tr id="headerRow"
+                    class="[&_th]:h-6 [&_th]:relative [&_th]:border-white/20 [&_th]:p-0 [&_th]:text-center">
+                    <th class="w-8 sm:w-10 border-b text-xs font-bold">
                     </th>
-                @endforeach
-                <th class="min-w-20 cursor-pointer border align-middle text-base transition-colors select-none"
-                    onclick="addColumn()">+</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-            @foreach ($board->rows as $row)
-                <tr class="*:w-auto [&_td]:h-6 [&_td]:relative [&_td]:border [&_td]:border-white/20 [&_td]:p-0">
-                    <td class="w-10 min-w-10 border-r-3 text-center text-xs font-bold"
-                        data-row-id="{{ $row->id }}">
-                        {{ $row->label }}
-                    </td>
                     @foreach ($board->columns as $column)
-                        <td class="min-w-30" data-cell-id="{{ $row->row_index }}-{{ $column->column_index }}">
-                            <input type="text"
-                                class="cell-input size-full resize-none border-none bg-transparent px-1.5 py-1 font-sans text-xs outline-none"
-                                data-row="{{ $row->row_index }}" data-col="{{ $column->column_index }}"
-                                data-row-id="{{ $row->id }}" data-column-id="{{ $column->id }}"
-                                onchange="saveCell(this)" oncontextmenu="showTagMenu(event, this)"
-                                ontouchstart="handleTouchStart(event, this)" ontouchend="handleTouchEnd(event, this)">
-                        </td>
+                        <th class="min-w-24 sm:min-w-32 cursor-pointer border-s border-b text-xs font-bold hover:bg-white/10"
+                            oncontextmenu="showColumnMenu(event, {{ $column->column_index }})"
+                            data-col="{{ $column->column_index }}" data-column-id="{{ $column->id }}">
+                            <div class="px-1 sm:px-2 truncate">
+                                {{ $column->label }}
+                                <span class="sort-indicator ml-1 text-xs" id="sort-{{ $column->column_index }}">
+                                    @if ($column->sort_config)
+                                        {{ $column->sort_config['direction'] === 'asc' ? '↑' : '↓' }}
+                                    @endif
+                                </span>
+                            </div>
+                        </th>
                     @endforeach
-                    <td class="min-w-30 cursor-pointer text-center align-middle text-base transition-colors select-none"
-                        onclick="addColumn()">+</td>
+                    <th class="w-8 sm:w-10 cursor-pointer border align-middle text-base transition-colors select-none"
+                        onclick="addColumn()">+</th>
                 </tr>
-            @endforeach
-            <tr
-                class="add-row-tr [&_td]:cursor-pointer [&_td]:transition-colors [&_td]:text-center [&_td]:align-middle [&_td]:text-base [&_td]:text-gray-600 [&_td]:select-none [&_td]:border [&_td]:border-white/20 [&_td]:p-0 [&_td]:relative [&_td]:min-w-10 [&_td]:w-10 [&_td]:h-6">
-                <td onclick="addRow()">+</td>
-                @foreach ($board->columns as $column)
-                    <td onclick="addRow()">+</td>
+            </thead>
+            <tbody id="tableBody">
+                @foreach ($board->rows as $row)
+                    <tr
+                        class="[&_td]:h-6 [&_td]:relative [&_td]:border-r [&_td]:border-y [&_td]:border-white/20 [&_td]:p-0">
+                        <td class="w-8 sm:w-10 border-r text-center text-xs font-bold"
+                            data-row-id="{{ $row->id }}">
+                            <div class="truncate px-4">{{ $row->label }}</div>
+                        </td>
+                        @foreach ($board->columns as $column)
+                            <td class="min-w-24 sm:min-w-32"
+                                data-cell-id="{{ $row->row_index }}-{{ $column->column_index }}">
+                                <input type="text"
+                                    class="cell-input w-full h-full resize-none border-none bg-transparent px-1 sm:px-1.5 py-1 font-sans text-xs outline-none"
+                                    data-row="{{ $row->row_index }}" data-col="{{ $column->column_index }}"
+                                    data-row-id="{{ $row->id }}" data-column-id="{{ $column->id }}"
+                                    onchange="saveCell(this)" oncontextmenu="showTagMenu(event, this)"
+                                    ontouchstart="handleTouchStart(event, this)"
+                                    ontouchend="handleTouchEnd(event, this)">
+                            </td>
+                        @endforeach
+                        <td class="w-8 sm:w-10 cursor-pointer text-center align-middle text-base transition-colors select-none"
+                            onclick="addColumn()">+</td>
+                    </tr>
                 @endforeach
-                <td onclick="addRow()">+</td>
-            </tr>
-        </tbody>
-    </table>
+                <tr
+                    class="add-row-tr [&_td]:cursor-pointer [&_td]:transition-colors [&_td]:text-center [&_td]:align-middle [&_td]:text-base [&_td]:select-none [&_td]:border [&_td]:border-white/20 [&_td]:px-4 [&_td]:relative [&_td]:h-6">
+                    <td class="w-8 sm:w-10 px-4" onclick="addRow()">+</td>
+                    @foreach ($board->columns as $column)
+                        <td class="min-w-24 sm:min-w-32 px-4" onclick="addRow()">+</td>
+                    @endforeach
+                    <td class="w-8 sm:w-10 px-4" onclick="addRow()">+</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-    // Add to your existing script section
     let currentRows = {{ $board->rows->count() }};
     let currentCols = {{ $board->columns->count() }};
     let tableData = {};
@@ -626,6 +619,26 @@
     function exportCSV() {
         const csvData = [];
 
+        // Get filename from user
+        let filename = prompt('Enter filename for CSV export:', 'spreadsheet_data');
+
+        // Handle cancel or empty input
+        if (filename === null) {
+            return; // User cancelled
+        }
+
+        // Clean filename and ensure .csv extension
+        filename = filename.trim();
+        if (filename === '') {
+            filename = 'spreadsheet_data';
+        }
+
+        // Remove invalid characters and ensure .csv extension
+        filename = filename.replace(/[<>:"/\\|?*]/g, '_');
+        if (!filename.toLowerCase().endsWith('.csv')) {
+            filename += '.csv';
+        }
+
         // Determine actual data bounds using database indices
         let maxRowIndex = 0;
         let maxColIndex = 0;
@@ -672,7 +685,7 @@
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
-            link.setAttribute('download', 'spreadsheet_data.csv');
+            link.setAttribute('download', filename);
             link.style.visibility = 'hidden';
             document.body.appendChild(link);
             link.click();
@@ -951,11 +964,12 @@
 
         // Create new row
         const newRow = document.createElement('tr');
-        newRow.className = '*:w-auto [&_td]:h-6 [&_td]:relative [&_td]:border [&_td]:border-white/20 [&_td]:p-0';
+        newRow.className =
+            '*:w-auto [&_td]:h-6 [&_td]:relative [&_td]:border-r [&_td]:border-y [&_td]:border-white/20 [&_td]:p-0';
 
         // Row header
         const rowHeader = document.createElement('td');
-        rowHeader.className = 'w-10 min-w-10 border-r-3 text-center text-xs font-bold';
+        rowHeader.className = 'w-10 min-w-10 border-r text-center text-xs font-bold';
         rowHeader.setAttribute('data-row-id', rowData.id);
         rowHeader.textContent = rowData.label;
         newRow.appendChild(rowHeader);
@@ -1039,7 +1053,7 @@
         // Add header
         const headerRow = document.getElementById('headerRow');
         const newHeader = document.createElement('th');
-        newHeader.className = 'min-w-20 cursor-pointer border-s-1 border-b-3 text-xs font-bold hover:bg-white/10';
+        newHeader.className = 'min-w-20 cursor-pointer border-s border-b text-xs font-bold hover:bg-white/10';
         newHeader.innerHTML =
             `${columnData.label}<span class="sort-indicator ml-1 text-xs" id="sort-${columnData.column_index}"></span>`;
         newHeader.setAttribute('data-col', columnData.column_index);
@@ -1089,7 +1103,7 @@
         const addRowTr = document.querySelector('.add-row-tr');
         const addRowCell = document.createElement('td');
         addRowCell.className =
-            'cursor-pointer transition-colors text-center align-middle text-base select-none border border-white/20 p-0 relative min-w-30 h-6';
+            'cursor-pointer transition-colors text-center align-middle text-base select-none border border-white/20 p-4 relative min-w-30 h-6';
         addRowCell.textContent = '+';
         addRowCell.onclick = addRow;
         addRowTr.insertBefore(addRowCell, addRowTr.lastElementChild);

@@ -25,15 +25,15 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-[#191919] text-white">
+<body class="bg-[#2c2c2c] text-white">
 
 
     <div id="wrapper">
         <x-navigation.mobile-navigation />
         <div class="flex">
             <x-navigation.navigation />
-            <div class="basis-full">
-                <main class="mt-10 max-w-[1400px] h-screen px-10">
+            <div class="basis-full max-w-full overflow-hidden">
+                <main class="mt-10 max-w-[1400px] min-h-screen px-10 pb-10">
                     {{ $slot }}
                 </main>
                 <x-footer />

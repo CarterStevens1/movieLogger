@@ -1,6 +1,7 @@
 <x-layout>
-    <x-page-heading>Log in</x-page-heading>
-
+    <x-page-header>
+        <x-page-heading class="mb-0!">Log in</x-page-heading>
+    </x-page-header>
 
     <x-forms.form method="POST" action="/login" enctype="multipart/form-data">
         <x-forms.input name="email" label="Email" type="email" />

@@ -1,15 +1,17 @@
 <!-- component -->
 <div id="navigation"
-    class="sticky max-xl:hidden top-0 z-10 xl:rounded-r transform xl:translate-x-0  ease-in-out transition duration-500 flex justify-start items-start h-screen w-full sm:w-64 bg-gray-900 flex-col">
+    class="xl:ml-8 xl:my-8 xl:h-[calc(100vh_-_4rem)]! sticky max-xl:hidden top-0 xl:top-4 z-10 xl:rounded-xl transform xl:translate-x-0  ease-in-out transition duration-500 flex justify-start items-start h-screen w-full sm:w-70 bg-gray-900 flex-col">
 
-    <div class="hidden xl:flex justify-start p-6 items-center space-x-3">
-        <img src="{{ asset('images/logo.svg') }}" alt="logo" class="w-8 h-8 rounded-full">
-        <p class="text-2xl font-semibold">Boardchive</p>
+    <div class="hidden xl:flex p-6 items-center">
+        <a class="xl:flex justify-start gap-3 href="{{ Route('home') }}">
+            <img src="{{ asset('images/logo.svg') }}" alt="logo" class="w-8 h-8 rounded-full">
+            <p class="text-2xl font-semibold">Boardchive</p>
+        </a>
     </div>
     <div class="mt-6 flex flex-col justify-start items-center pl-4 w-full border-gray-600 border-y gap-6 py-5">
         @auth
             <a href="{{ url('/my-boards') }}"
-                class="flex jusitfy-start items-center space-x-6 w-full focus:outline-none focus:text-indigo-400 hover:text-indigo-400 cursor-pointer">
+                class="flex jusitfy-start items-center space-x-6 w-full focus:outline-none focus:text-lightGreen-400 hover:text-lightGreen-400 cursor-pointer">
                 <svg class="fill-stroke " width="24" height="24" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -28,7 +30,7 @@
                 <p class="text-base leading-4 ">Dashboard</p>
             </a>
             <a href="{{ Route('boards.create') }}"
-                class="flex jusitfy-start items-center space-x-6 w-full focus:outline-none focus:text-indigo-400 hover:text-indigo-400 cursor-pointer">
+                class="flex jusitfy-start items-center space-x-6 w-full focus:outline-none focus:text-lightGreen-400 hover:text-lightGreen-400 cursor-pointer">
                 <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24" transform="" id="injected-svg">
                     <!-- Boxicons v3.0 https://boxicons.com | License  https://docs.boxicons.com/free -->
                     <path d="M3 13h8v8h2v-8h8v-2h-8V3h-2v8H3z" />
@@ -37,8 +39,8 @@
             </a>
         @endauth
         @guest
-            <a href="{{ Route('boards.create') }}"
-                class="flex jusitfy-start items-center space-x-6 w-full focus:outline-none focus:text-indigo-400 hover:text-indigo-400 cursor-pointer">
+            <a href="{{ Route('register') }}"
+                class="flex jusitfy-start items-center space-x-6 w-full focus:outline-none focus:text-lightGreen-400 hover:text-lightGreen-400 cursor-pointer">
                 <x-mdi-account-plus-outline class="w-6 h-6" />
                 <p class="text-base leading-4">Create account</p>
             </a>
@@ -49,7 +51,7 @@
         @guest
             <div class="space-x-6 font-bold">
 
-                <a class="bg-blue-500 rounded-lg px-4 py-2 justify-center flex gap-2 hover:bg-blue-700"
+                <a class="bg-green-500 rounded-lg px-4 py-2 justify-center flex gap-2 hover:bg-green-700 transition-all duration-300 ease-in-out"
                     href="{{ url('/login') }}">Log In
                     <x-monoicon-log-in class="w-6 h-6" /></a>
             </div>
@@ -59,8 +61,8 @@
                 <form method="POST" action="/logout">
                     @csrf
                     @method('POST')
-                    <button class="cursor-pointer flex gap-2 bg-red-500 rounded-lg px-4 py-2">Log Out <x-monoicon-log-out
-                            class="w-6 h-6" /></button>
+                    <x-global.button variant="peach" href="{{ Route('logout') }}">Log Out
+                        <x-monoicon-log-out class="w-6 h-6" /></x-global.button>
                 </form>
             </div>
             <div class="flex justify-between items-center gap-1">

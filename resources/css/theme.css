@@ -1,22 +1,19 @@
 @theme {
-
-
-    --default-font-family: "Poppins", "museo-sans-rounded", "Lucida Grande", "sans-serif";
+    /* --default-font-family: "Poppins", "museo-sans-rounded", "Lucida Grande", "sans-serif";
     --default-mono-font-family: "Poppins", "museo-sans-rounded", "Lucida Grande", "sans-serif";
     --font-sans: "Poppins", "museo-sans-rounded", "Lucida Grande", "sans-serif";
     --font-display: "Poppins", "museo-sans-rounded", "Lucida Grande", "sans-serif";
-    --font-body: "Poppins", "museo-sans-rounded", "Lucida Grande", "sans-serif";
-    --fontAwesomeSolid: "var(--fa-font-solid)";
+    --font-body: "Poppins", "museo-sans-rounded", "Lucida Grande", "sans-serif"; */
 
-        --color-primary-100: "#dadadc";
-        --color-primary-200: "#b5b6b9";
-        --color-primary-300: "#8f9197";
-        --color-primary-400: "#6a6d74";
-        --color-primary-500: "#454851";
-        --color-primary-600: "#373a41";
-        --color-primary-700: "#292b31";
-        --color-primary-800: "#1c1d20";
-        --color-primary-900: "#0e0e10";
+        --color-primary-100: #dadadc;
+        --color-primary-200: #b5b6b9;
+        --color-primary-300: #8f9197;
+        --color-primary-400: #6a6d74;
+        --color-primary-500: #2D3142;
+        --color-primary-600: #373a41;
+        --color-primary-700: #292b31;
+        --color-primary-800: #1c1d20;
+        --color-primary-900: #0e0e10;
 
         --color-green-50: oklch(96.34% 0.027 141.92);
         --color-green-100: oklch(92.46% 0.06 142.1);
@@ -30,29 +27,29 @@
         --color-green-900: oklch(23.84% 0.025 142.42);
         --color-green-950: oklch(18.55% 0.019 141.52);
 
-        --color-secondary-green-50: oklch(97.19% 0.022 145.32);
-        --color-secondary-green-100: oklch(93.42% 0.056 146.68);
-        --color-secondary-green-200: oklch(87.64% 0.108 146.42);
-        --color-secondary-green-300: oklch(81.66% 0.101 146.19);
-        --color-secondary-green-400: oklch(75.83% 0.094 146.33);
-        --color-secondary-green-500: oklch(70.21% 0.087 146.52);
-        --color-secondary-green-600: oklch(58.66% 0.071 146.45);
-        --color-secondary-green-700: oklch(47.68% 0.059 146.91);
-        --color-secondary-green-800: oklch(36.54% 0.045 145.68);
-        --color-secondary-green-900: oklch(24.71% 0.031 146.31);
-        --color-secondary-green-950: oklch(19.56% 0.025 144.55);
+        --color-secondaryGreen-50: oklch(97.19% 0.022 145.32);
+        --color-secondaryGreen-100: oklch(93.42% 0.056 146.68);
+        --color-secondaryGreen-200: oklch(87.64% 0.108 146.42);
+        --color-secondaryGreen-300: oklch(81.66% 0.101 146.19);
+        --color-secondaryGreen-400: oklch(75.83% 0.094 146.33);
+        --color-secondaryGreen-500: oklch(70.21% 0.087 146.52);
+        --color-secondaryGreen-600: oklch(58.66% 0.071 146.45);
+        --color-secondaryGreen-700: oklch(47.68% 0.059 146.91);
+        --color-secondaryGreen-800: oklch(36.54% 0.045 145.68);
+        --color-secondaryGreen-900: oklch(24.71% 0.031 146.31);
+        --color-secondaryGreen-950: oklch(19.56% 0.025 144.55);
 
-        --color-light-green-50: oklch(98.09% 0.015 158.12);
-        --color-light-green-100: oklch(96.19% 0.03 155.92);
-        --color-light-green-200: oklch(92.32% 0.063 156.91);
-        --color-light-green-300: oklch(88.6% 0.096 156.75);
-        --color-light-green-400: oklch(86.05% 0.093 156.26);
-        --color-light-green-500: oklch(82.36% 0.089 156.58);
-        --color-light-green-600: oklch(68.9% 0.073 156.87);
-        --color-light-green-700: oklch(54.56% 0.06 156.38);
-        --color-light-green-800: oklch(40.77% 0.043 156.27);
-        --color-light-green-900: oklch(27.12% 0.028 156.5);
-        --color-light-green-950: oklch(20.45% 0.021 156.09);
+        --color-lightGreen-50: oklch(98.09% 0.015 158.12);
+        --color-lightGreen-100: oklch(96.19% 0.03 155.92);
+        --color-lightGreen-200: oklch(92.32% 0.063 156.91);
+        --color-lightGreen-300: oklch(88.6% 0.096 156.75);
+        --color-lightGreen-400: oklch(86.05% 0.093 156.26);
+        --color-lightGreen-500: oklch(82.36% 0.089 156.58);
+        --color-lightGreen-600: oklch(68.9% 0.073 156.87);
+        --color-lightGreen-700: oklch(54.56% 0.06 156.38);
+        --color-lightGreen-800: oklch(40.77% 0.043 156.27);
+        --color-lightGreen-900: oklch(27.12% 0.028 156.5);
+        --color-lightGreen-950: oklch(20.45% 0.021 156.09);
 
         --color-peach-red-50: oklch(96.74% 0.009 17.51);
         --color-peach-red-100: oklch(93.33% 0.02 17.6);

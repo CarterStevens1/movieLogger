@@ -1,5 +1,7 @@
 <x-layout>
-    <x-page-heading>Register</x-page-heading>
+    <x-page-header>
+        <x-page-heading class="mb-0!">Create an account</x-page-heading>
+    </x-page-header>
 
 
     <x-forms.form method="POST" action="/register" enctype="multipart/form-data">

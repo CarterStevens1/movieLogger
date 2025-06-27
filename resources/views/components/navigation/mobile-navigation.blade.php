@@ -3,7 +3,7 @@
     <!--- more free and premium Tailwind CSS components at https://tailwinduikit.com/ --->
     <div class="flex justify-between  items-center space-x-3">
         <img src="{{ asset('images/logo.svg') }}" alt="logo" class="w-8 h-8 rounded-full">
-        <p class="text-2xl leading-6 text-white">Boardchive</p>
+        <p class="text-2xl font-semibold leading-6">Boardchive</p>
     </div>
     <div aria-label="toggler" class="flex justify-center items-center">
         <button aria-label="open" id="openIcon" class=" focus:outline-none focus:ring-2">

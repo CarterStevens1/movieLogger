@@ -20,13 +20,13 @@
     </x-forms.form>
     <x-forms.divider />
     <div class="flex justify-between max-w-2xl mx-auto space-y-6">
-        <x-forms.button form="update">Save</x-forms.button>
+        <x-global.button variant="save" form="update">Save</x-global.button>
         {{-- Get confirmation to deleten before deleting --}}
         <form id="deleteUser" method="POST" action="/destroy">
             @csrf
             @method('POST')
-            <button form="deleteUser" class="flex gap-2 mx-0 bg-red-500 rounded py-2 px-6 font-bold cursor-pointer">
-                Delete User</button>
+            <x-global.button variant="danger" form="deleteUser">
+                Delete User</x-global.button>
         </form>
 
     </div>
