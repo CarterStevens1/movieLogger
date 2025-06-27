@@ -20,9 +20,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-[#191919] text-white pb-12">
+<body class="bg-[#191919] text-white">
     <div class="px-10">
-        <nav class="relative z-1 flex justify-between items-center py-4 border-b border-white/10">
+        {{-- <nav class="relative z-1 flex justify-between items-center py-4 border-b border-white/10">
             <div class="font-bold">
                 <a href="{{ url('/') }}">
                     <a href="{{ url('/') }}">Home</a>
@@ -51,12 +51,20 @@
                 </div>
             @endguest
 
-        </nav>
+        </nav> --}}
 
-
-        <main class="mt-10 max-w-[1400px] mx-auto">
+        <main class="mt-10 max-w-[1400px] mx-auto min-h-[100vh]">
             {{ $slot }}
         </main>
+
+        <footer class="bg-white/10 py-20 px-10">
+            <div>
+                <p class="mb-0">© @php
+                    echo date('Y');
+                @endphp Boardchive, All rights reserved.</p>
+            </div>
+
+        </footer>
     </div>
     @yield('content')
     @livewireScripts
