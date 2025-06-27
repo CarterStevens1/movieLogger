@@ -30,11 +30,13 @@ class BoardRows extends Model
         return $this->belongsTo(Board::class);
     }
 
+    // Generate labels for rows 1,2,3 etc.
     public static function generateLabel($index)
     {
         return (string) $index; // Simple numeric label
     }
 
+    // Initially create 50 rows on board creation
     public static function createInitialRows($boardId, $count = 50)
     {
         for ($i = 1; $i <= $count; $i++) { // Start from 1 for row numbering

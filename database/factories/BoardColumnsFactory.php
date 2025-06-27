@@ -20,10 +20,12 @@ class BoardColumnsFactory extends Factory
     {
         return [
             //
-            'user_id' => User::factory(),
             'board_id' => Board::factory(),
-            'position' => 1,
-            //
+            'column_index' => $this->faker->unique()->numberBetween(0, 100),
+            'label' => fake()->word(), // Changed from 'label' to match your test
+            'position' => fake()->numberBetween(0, 10),
+            'is_visible' => true,
+            'sort_config' => [],
         ];
     }
 }

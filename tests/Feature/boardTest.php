@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\Board;
+use App\Models\BoardColumns;
+use App\Models\BoardRows;
 use App\Models\User;
 
 
@@ -108,29 +110,77 @@ it('can unshare a board with another user', function () {
     expect($board->sharedUsers()->where('user_id', $user2->id)->exists())->toBeFalse();
 });
 
-// it('can add columns and rows to a board', function () {
+it('has base columns on board creation', function () {
+    // Create a user
+    $user = User::factory()->create();
+    // Authenticate the user
+    login($user);
+    // Create a board
+    $board = Board::factory()->create();
+    // Assert that the board has 20 columns
+    expect($board->columns->count())->toBe(20);
+});
+it('has base rows on board creation', function () {
+    // Create a user
+    $user = User::factory()->create();
+    // Authenticate the user
+    login($user);
+    // Create a board
+    $board = Board::factory()->create();
+    // Assert that the board has 50 rows
+    expect($board->rows->count())->toBe(50);
+});
 
-//     // Create a user
-//     $user = User::factory()->create();
-//     // Authenticate the user
-//     login($user);
-//     // Create a board
-//     $board = Board::factory()->create();
-//     // Assign the board to the user
-//     $board->user()->associate($user);
-//     // Create a column and add it to the board  
-//     // Create a row and add it to the board
-//     // Assert that the column and row were added
-// });
 
-describe('Column Name Generation', function() {
-    it('generates correct Excel-style column names', function() {
-        expect(generateColumnName(1))->toBe('A');
-        expect(generateColumnName(26))->toBe('Z');
-        expect(generateColumnName(27))->toBe('AA');
-        expect(generateColumnName(52))->toBe('AZ');
-        expect(generateColumnName(53))->toBe('BA');
-        expect(generateColumnName(702))->toBe('ZZ');
-        expect(generateColumnName(703))->toBe('AAA');
+describe('Column Name Generation', function () {
+    it('generates correct Excel-style column names', function () {
+        expect(BoardColumns::generateLabel(0))->toBe('A');
+        expect(BoardColumns::generateLabel(25))->toBe('Z');
+        expect(BoardColumns::generateLabel(26))->toBe('AA');
+        expect(BoardColumns::generateLabel(51))->toBe('AZ');
+        expect(BoardColumns::generateLabel(52))->toBe('BA');
+        expect(BoardColumns::generateLabel(701))->toBe('ZZ');
+        expect(BoardColumns::generateLabel(702))->toBe('AAA');
     });
+});
+
+describe('Row Name Generation', function () {
+    it('generates correct Excel-style row names', function () {
+        expect(BoardRows::generateLabel(1))->toBe('1');
+        expect(BoardRows::generateLabel(10))->toBe('10');
+        expect(BoardRows::generateLabel(11))->toBe('11');
+        expect(BoardRows::generateLabel(20))->toBe('20');
+    });
+});
+
+it('can add column to board with default columns', function () {
+    // Create a user
+    $user = User::factory()->create();
+    // Authenticate the user
+    login($user);
+    // Create a board
+    $board = Board::factory()->create();
+    // Add a column to the board
+    $column = BoardColumns::factory()->create([
+        'board_id' => $board->id,
+        'label' => 'Test Column',
+    ]);
+
+    expect($board->fresh()->columns->count())->toBe(21);
+});
+
+it('can add row to board with default rows', function () {
+    // Create a user
+    $user = User::factory()->create();
+    // Authenticate the user
+    login($user);
+    // Create a board
+    $board = Board::factory()->create();
+    // Add a row to the board
+    $row = BoardRows::factory()->create([
+        'board_id' => $board->id,
+        'label' => 'Test Row',
+    ]);
+
+    expect($board->fresh()->rows->count())->toBe(51);
 });
