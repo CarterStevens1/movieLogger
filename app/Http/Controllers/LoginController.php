@@ -38,6 +38,7 @@ class LoginController extends Controller
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
+            return redirect()->back()->withInput($request->only('email'));
         }
 
         request()->session()->regenerate();

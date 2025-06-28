@@ -54,7 +54,8 @@
                 @guest
                     <div class="space-x-6 font-bold">
 
-                        <a class="bg-green-500 rounded-lg px-4 py-2 justify-center flex gap-2 hover:bg-green-700 transition-all duration-300 ease-in-out"
+                        <a id="logIn"
+                            class="bg-green-500 rounded-lg px-4 py-2 justify-center flex gap-2 hover:bg-green-700 transition-all duration-300 ease-in-out"
                             href="{{ url('/login') }}">Log In
                             <x-monoicon-log-in class="w-6 h-6" /></a>
                     </div>
@@ -64,7 +65,7 @@
                         <form method="POST" action="/logout">
                             @csrf
                             @method('POST')
-                            <x-global.button variant="peach" href="{{ Route('logout') }}">Log Out
+                            <x-global.button id="logOut" variant="peach" href="{{ Route('logout') }}">Log Out
                                 <x-monoicon-log-out class="w-6 h-6" /></x-global.button>
                         </form>
                     </div>

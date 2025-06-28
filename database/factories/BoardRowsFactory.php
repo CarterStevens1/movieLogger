@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Board;
+use App\Models\BoardRows;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,7 +21,12 @@ class BoardRowsFactory extends Factory
         return [
             //
             'board_id' => Board::factory(),
-            'row_index' => $this->faker->unique()->numberBetween(0, 100),
+            'row_index' => function (array $attributes) {
+                // Generate unique row_index for this board
+                $maxIndex = BoardRows::where('board_id', $attributes['board_id'])
+                    ->max('row_index') ?? 0;
+                return $maxIndex + 1;
+            },
             'label' => fake()->unique()->word,
             'position' => fake()->numberBetween(0, 10),
             'is_visible' => true,

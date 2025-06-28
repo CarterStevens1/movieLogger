@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Board;
+use App\Models\BoardColumns;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -21,7 +22,12 @@ class BoardColumnsFactory extends Factory
         return [
             //
             'board_id' => Board::factory(),
-            'column_index' => $this->faker->unique()->numberBetween(0, 100),
+            'column_index' => function (array $attributes) {
+                // Generate unique row_index for this board
+                $maxIndex = BoardColumns::where('board_id', $attributes['board_id'])
+                    ->max('column_index') ?? 0;
+                return $maxIndex + 1;
+            },
             'label' => fake()->word(), // Changed from 'label' to match your test
             'position' => fake()->numberBetween(0, 10),
             'is_visible' => true,
