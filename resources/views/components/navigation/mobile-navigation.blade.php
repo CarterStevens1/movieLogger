@@ -1,5 +1,4 @@
-<div
-    class="sticky z-10 top-0 rounded-r bg-gray-900 xl:hidden flex justify-between w-full p-6 items-center max-h-[100vh]">
+<div class="m-4 top-1 z-10 rounded-xl bg-gray-900 xl:hidden flex justify-between w-auto p-6 items-center max-h-[100vh]">
     <!--- more free and premium Tailwind CSS components at https://tailwinduikit.com/ --->
     <div class="flex justify-between  items-center space-x-3">
         <img src="{{ asset('images/logo.svg') }}" alt="logo" class="w-8 h-8 rounded-full">

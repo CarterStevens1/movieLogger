@@ -29,8 +29,8 @@
 
 
     <div id="wrapper">
-        <x-navigation.mobile-navigation />
-        <div class="flex">
+
+        <div class="flex flex-col xl:flex-row">
             <x-navigation.navigation />
             <div class="basis-full max-w-full overflow-hidden">
                 <main class="mt-10 max-w-[1400px] min-h-screen px-10 pb-10">
