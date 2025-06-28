@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Board;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -29,21 +30,31 @@ class LoginController extends Controller
      */
     public function store(Request $request)
     {
-        $attributes = $request->validate([
-            'email' => ['required', 'email'],
+        $credentials = $request->validate([
+            'login' => ['required', 'string'],
             'password' => ['required'],
         ]);
 
-        if (! Auth::attempt($attributes)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
-            return redirect()->back()->withInput($request->only('email'));
+        // Determine if login input is email or username
+        $loginType = filter_var($credentials['login'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        $loginCredentials = [
+            $loginType => $credentials['login'],
+            'password' => $credentials['password']
+        ];
+
+        if (Auth::attempt($loginCredentials, $request->boolean('remember'))) {
+            $request->session()->regenerate();
+            $boards = Board::where('user_id', Auth::user()->id)->latest()->get();
+            $user = Auth::user();
+            $sharedBoards = $user->sharedBoards()->get();
+
+            return view('boards', compact(['sharedBoards', 'boards']));
         }
 
-        request()->session()->regenerate();
-
-        return redirect('/');
+        return back()->withErrors([
+            'login' => 'The provided credentials are incorrect.',
+        ])->onlyInput('login');
     }
 
     /**

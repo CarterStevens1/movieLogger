@@ -5,7 +5,7 @@
             class=" mx-4 my-0 xl:ml-8 xl:mr-0 xl:my-8 xl:h-[calc(100vh_-_4rem)]! sticky max-xl:hidden top-0 xl:top-4 z-10 rounded-xl transform xl:translate-x-0  ease-in-out transition duration-500 flex justify-start items-start h-screen w-full sm:w-70 bg-gray-900 flex-col">
 
             <div class="hidden xl:flex p-6 items-center">
-                <a class="xl:flex justify-start gap-3 href="{{ Route('home') }}">
+                <a class="xl:flex justify-start gap-3" href="{{ Route('home') }}">
                     <img src="{{ asset('images/logo.svg') }}" alt="logo" class="w-8 h-8 rounded-full">
                     <p class="text-2xl font-semibold">Boardchive</p>
                 </a>

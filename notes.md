@@ -43,12 +43,12 @@
 
   ----------- 28/06/2025 ----------------
 
-    ### Can create username with account
-      - Create a new user with a username and password and email
-      - Error if username already exists
-      - Error if email already exists
+    ### Can create username with account (X - DONE)
+      - Create a new user with a username and password and email (X - DONE)
+      - Error if username already exists (X - DONE)
+      - Error if email already exists (X - DONE)
       - Error if using invalid character
-      - Error if password is less than 8 characters
+      - Error if password is less than 8 characters (X - DONE)
 
     ### Can give privelages to shared user (admin, editer, viewer)
       - Update migration to add new column to shared board table of "privelages"
@@ -68,7 +68,7 @@
       - Add a delete button to remove the user from the board
         - Add a confirm dialog before deleting a user
 
-    ### Change home page on login to dashboard
+    ### Change home page on login to dashboard (X - DONE)
 
     ### Update import to ask for comfirmation before importing
 
