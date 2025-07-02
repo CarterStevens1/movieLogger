@@ -43,7 +43,7 @@ class BoardController extends Controller
 
         $board = Board::create($boardAtrributes);
 
-        return redirect()->route('boards.show', Board::find($board->id));
+        return redirect()->route('boards', Board::find($board->id));
     }
 
     /**
@@ -122,7 +122,15 @@ class BoardController extends Controller
         return  Redirect::back()->with('success', 'Board shared with user successfully.');
     }
 
-    public function unshare(string $id) {}
+    public function unshare(Request $request, string $id)
+    {
+        // User user id from request to delete column from shared boards
+
+        $board = Board::find($id);
+        $board->sharedUsers()->detach($request->user_id);
+        // Return view with success message
+        return Redirect::back()->with('success', 'Board unshared with user successfully.');
+    }
 
     public function updateCellValues(Request $request)
     {

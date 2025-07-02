@@ -26,7 +26,8 @@
         <form id="deleteUser" method="POST" action="/destroy">
             @csrf
             @method('POST')
-            <x-global.button variant="danger" form="deleteUser">
+            <x-global.button onclick="return confirm('Are you sure you want to delete your account?')" variant="danger"
+                form="deleteUser">
                 Delete User</x-global.button>
         </form>
 

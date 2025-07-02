@@ -56,17 +56,17 @@
       -- Editor can edit table
       -- Viewer can view table
 
-    ### Add pre-confirm to delete board
-      - Add a confirm dialog before deleting a board
+    ### Add pre-confirm to delete board (X - DONE)
+      - Add a confirm dialog before deleting a board (X - DONE)
     
-    ### Add pre-confirm to delete user
-      - Add a confirm dialog before deleting a user
+    ### Add pre-confirm to delete user (X - DONE)
+      - Add a confirm dialog before deleting a user (X - DONE)
     
-    ### Add list of users shared with a board
-      - Add a list of users shared with a board
+    ### Add list of users shared with a board (X - DONE)
+      - Add a list of users shared with a board (X - DONE)
       - Add ability to change privelages of a user
-      - Add a delete button to remove the user from the board
-        - Add a confirm dialog before deleting a user
+      - Add a delete button to remove the user from the board (X - DONE)
+        - Add a confirm dialog before deleting a user (X - DONE)
 
     ### Change home page on login to dashboard (X - DONE)
 
