@@ -1,9 +1,9 @@
 @props(['boards', 'sharedBoards'])
 
 <x-layout>
-    <div class="flex justify-between items-center pb-8">
+    <div class="flex flex-wrap justify-between items-center pb-8 gap-4">
         <x-page-heading class="text-center mb-0!">Dashboard</x-page-heading>
-        <x-global.buttonLink href="{{ Route('boards.create') }}" class="mx-0! ms-auto!">Create a new
+        <x-global.buttonLink href="{{ Route('boards.create') }}" class="mx-0!">Create a new
             board</x-global.buttonLink>
     </div>
     <hr class="w-full border-t border-white/10">
