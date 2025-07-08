@@ -17,33 +17,36 @@
 
     <div class="flex justify-between flex-col xl:flex-row items-start pt-6 gap-6">
         <div>
-            <h2 class="text-2xl font-bold">Current board tags</h2>
+            @if ($board->tags !== null)
+                <h2 class="text-2xl font-bold">Current board tags</h2>
 
-            <div class="flex flex-wrap items-center gap-6 pt-6">
-                @php
-                    $tagsArray = collect(explode(',', $board->tags))
-                        ->filter() // Remove empty values
-                        ->map(function ($tag, $index) {
-                            $colors = ['#ef4444', '#f59e0b', '#10b981', '#6366f1', '#8b5cf6', '#ec4899', '#06b6d4'];
-                            return [
-                                'name' => trim($tag),
-                                'color' => $colors[$index % count($colors)],
-                            ];
-                        })
-                        ->values()
-                        ->toArray();
-                @endphp
-                @foreach ($tagsArray as $tag)
-                    <x-tag :tag="$tag" class="rounded-2xl" />
-                @endforeach
+                <div class="flex flex-wrap items-center gap-6 pt-6">
+                    @php
+                        $tagsArray = collect(explode(',', $board->tags))
+                            ->filter() // Remove empty values
+                            ->map(function ($tag, $index) {
+                                $colors = ['#ef4444', '#f59e0b', '#10b981', '#6366f1', '#8b5cf6', '#ec4899', '#06b6d4'];
+                                return [
+                                    'name' => trim($tag),
+                                    'color' => $colors[$index % count($colors)],
+                                ];
+                            })
+                            ->values()
+                            ->toArray();
+                    @endphp
+                    @foreach ($tagsArray as $tag)
+                        <x-tag :tag="$tag" class="rounded-2xl" />
+                    @endforeach
 
-            </div>
+                </div>
+                <hr class="block xl:hidden w-full border-t border-white/10">
+            @endif
         </div>
+
         {{-- Only allow if user is the same as the board owner --}}
         @if (Auth::user()->id === $board->user_id)
             <!-- Hidden file input for CSV import -->
             <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="importCSV(event)">
-            <hr class="block xl:hidden w-full border-t border-white/10">
             <div class="flex items-start justify-center xl:flex-row gap-4">
                 <x-global.button variant="peach" onclick="document.getElementById('csvFileInput').click()">
                     Import CSV

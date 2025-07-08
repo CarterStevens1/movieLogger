@@ -14,8 +14,8 @@ window.addEventListener('DOMContentLoaded', () => {
         Main.classList.toggle("-translate-x-full");
         Main.classList.toggle("max-xl:hidden");
         Main.classList.toggle("translate-x-0");
-        Main.classList.toggle("min-w-full");
-        Main.classList.toggle("h-[calc(100vh_-_82px)]!");
+        Main.classList.toggle("w-auto!");
+        Main.classList.toggle("h-[calc(100vh_-_150px)]!");
         body.classList.toggle("overflow-hidden");
         bodyWrapper.classList.toggle("overflow-hidden");
 

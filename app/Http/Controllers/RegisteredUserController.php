@@ -35,8 +35,9 @@ class RegisteredUserController extends Controller
     {
         $userAtrributes = $request->validate([
             'name' => ['required'],
+            'username' =>  ['required', 'unique:users,username', 'string'],
             'email' =>  ['required', 'email', 'unique:users,email'],
-            'password' => ['required', 'confirmed', Password::min(6)],
+            'password' => ['required', 'confirmed', Password::min(8)],
 
         ]);
 
@@ -70,6 +71,7 @@ class RegisteredUserController extends Controller
     public function update(Request $request)
     {
         $request->validate([
+            'name' => ['required'],
             'current_password' => ['required'],
             'password' => ['required', 'confirmed', 'min:8'],
         ]);
