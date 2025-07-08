@@ -36,8 +36,8 @@ class BoardRows extends Model
         return (string) $index; // Simple numeric label
     }
 
-    // Initially create 50 rows on board creation
-    public static function createInitialRows($boardId, $count = 50)
+    // Initially create 20 rows on board creation
+    public static function createInitialRows($boardId, $count = 20)
     {
         for ($i = 1; $i <= $count; $i++) { // Start from 1 for row numbering
             self::create([

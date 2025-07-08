@@ -127,8 +127,8 @@ it('has base rows on board creation', function () {
     login($user);
     // Create a board
     $board = Board::factory()->create();
-    // Assert that the board has 50 rows
-    expect($board->rows->count())->toBe(50);
+    // Assert that the board has 20 rows
+    expect($board->rows->count())->toBe(20);
 });
 
 
