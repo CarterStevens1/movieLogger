@@ -37,7 +37,7 @@ class BoardController extends Controller
         $boardAtrributes = $request->validate([
             'user_id' => ['required'],
             'name' => ['required'],
-            'description' => ['required'],
+            'description' => ['nullable'],
             'tags' => ['nullable'],
         ]);
 
@@ -76,7 +76,7 @@ class BoardController extends Controller
         // Find board ID
         $request->validate([
             'name' => ['required'],
-            'description' => ['required'],
+            'description' => ['nullable'],
             'tags' => ['nullable'],
         ]);
         $board = Board::find($id);
@@ -103,7 +103,9 @@ class BoardController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
+            'permission' => 'required|string',
         ]);
+
         $user = User::where('email', strtolower($request->email))->first();
         if (!$user) {
             return Redirect::back()->with('error', 'User does not exist.');
@@ -116,6 +118,7 @@ class BoardController extends Controller
         // Attach the user to the board (many-to-many) without duplicates
         $board->sharedUsers()->attach($user->id, [
             'board_owner_id' => $board->user_id,
+            'privileges' => $request->permission
         ]);
 
         // Return view with success message

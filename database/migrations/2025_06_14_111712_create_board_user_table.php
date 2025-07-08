@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('board_owner_id')->foreignIdFor(Board::class)->constrained()->onDelete('cascade');
             $table->foreignIdFor(Board::class)->constrained()->onDelete('cascade');
             $table->foreignIdFor(User::class)->constrained()->onDelete('cascade');
+            $table->string('privileges')->nullable()->default('viewer');
             $table->timestamps();
 
             // Add a unique constraint to prevent duplicates
