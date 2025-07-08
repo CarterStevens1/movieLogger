@@ -4,7 +4,8 @@
     $defaults = [
         'id' => $name,
         'name' => $name,
-        'class' => 'rounded-xl bg-white/10 border border-white/10 px-5 py-4 w-full',
+        'class' =>
+            'appearance-none rounded-xl bg-[#424242] border border-white/10 px-5 py-4 w-full text-white border-gray-600 focus:ring-blue-500 focus:border-blue-500',
     ];
 @endphp
 
