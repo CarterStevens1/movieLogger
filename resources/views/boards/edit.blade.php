@@ -39,6 +39,12 @@
             enctype="multipart/form-data">
             @csrf
             <x-forms.input name="email" label="Share Email" type="email" />
+            <x-forms.select name="permission" label="Permission">
+                <option value="" disabled selected>Select permission</option>
+                <option value="admin">Admin</option>
+                <option value="editor">Editor</option>
+                <option value="viewer">Viewer</option>
+            </x-forms.select>
             <x-forms.divider />
         </x-forms.form>
         <div class="flex justify-between max-w-2xl mx-auto space-y-6">
