@@ -13,9 +13,7 @@
             @if ($board->description)
                 <p>{{ $board->description }}</p>
             @endif
-
-            <p class="self-start text-sm pt-1">Created by: {{ $user->name }}</p>
         </div>
-        <p class="text-sm">Created: {{ $board->created_at->format('j M Y') }}</p>
+        <p class="text-sm">Created by: {{ $user->name }} | {{ $board->created_at->format('j M Y') }}</p>
     </x-panel>
 </a>
