@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateBoardRequest;
 use App\Models\Board;
 use App\Models\BoardCells;
 use App\Models\User;
@@ -71,21 +72,9 @@ class BoardController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateBoardRequest $request, Board $board)
     {
-        // Find board ID
-        $request->validate([
-            'name' => ['required'],
-            'description' => ['nullable'],
-            'tags' => ['nullable'],
-        ]);
-        $board = Board::find($id);
-
-        $board->update([
-            'name' => $request->name,
-            'description' => $request->description,
-            'tags' => $request->tags,
-        ]);
+        $board->update($request->validate());
         return redirect()->route('boards.show', $board);
     }
 
