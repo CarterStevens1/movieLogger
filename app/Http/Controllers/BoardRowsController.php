@@ -58,4 +58,26 @@ class BoardRowsController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function bulkStore(Request $request)
+    {
+        $request->validate([
+            'board_id' => 'required|exists:boards,id',
+            'count' => 'required|integer|min:1'
+        ]);
+
+        $rows = [];
+        $maxRowIndex = BoardRows::where('board_id', $request->board_id)->max('row_index') ?? 0;
+
+        for ($i = 0; $i < $request->count; $i++) {
+            $newRow = new BoardRows();
+            $newRow->board_id = $request->board_id;
+            $newRow->row_index = $maxRowIndex + $i + 1;
+            $newRow->label = $newRow->row_index;
+            $newRow->save();
+            $rows[] = $newRow;
+        }
+
+        return response()->json(['rows' => $rows]);
+    }
 }

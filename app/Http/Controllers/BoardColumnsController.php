@@ -62,4 +62,26 @@ class BoardColumnsController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function bulkStore(Request $request)
+    {
+        $request->validate([
+            'board_id' => 'required|exists:boards,id',
+            'count' => 'required|integer|min:1'
+        ]);
+
+        $columns = [];
+        $maxColIndex = BoardColumns::where('board_id', $request->board_id)->max('column_index') ?? 0;
+
+        for ($i = 0; $i < $request->count; $i++) {
+            $newColumn = new BoardColumns();
+            $newColumn->board_id = $request->board_id;
+            $newColumn->column_index = $maxColIndex + $i + 1;
+            $newColumn->label = 'Column ' . ($newColumn->column_index);
+            $newColumn->save();
+            $columns[] = $newColumn;
+        }
+
+        return response()->json(['columns' => $columns]);
+    }
 }

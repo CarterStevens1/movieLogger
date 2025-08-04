@@ -25,11 +25,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/board-columns', [BoardColumnsController::class, 'store']);
     Route::patch('/board-columns/{column}/sort', [BoardColumnsController::class, 'updateSort']);
     Route::patch('/board-columns/reorder', [BoardColumnsController::class, 'reorder']);
+    Route::post('/board-columns/bulk', [BoardRowsController::class, 'bulkStore']);
 
     // New row routes
     Route::post('/board-rows', [BoardRowsController::class, 'store']);
     Route::patch('/board-rows/reorder', [BoardRowsController::class, 'reorder']);
     Route::delete('/board-rows/{row}', [BoardRowsController::class, 'destroy']);
+    Route::post('/board-rows/bulk', [BoardRowsController::class, 'bulkStore']);
 
     Route::post('/board-cells', [BoardCellsController::class, 'store']);
     Route::patch('/board-cells/{cell}', [BoardCellsController::class, 'update']);
