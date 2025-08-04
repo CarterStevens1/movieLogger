@@ -65,6 +65,7 @@ it('edits user successfully', function () {
 
     // Change password and submit check success message to see success
     $this->post(route('update'), [
+        'name' => 'Test User',
         'current_password' => 'password',
         'password' => 'newpassword',
         'password_confirmation' => 'newpassword',
