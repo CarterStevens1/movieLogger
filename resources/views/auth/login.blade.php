@@ -9,4 +9,6 @@
 
         <x-forms.button>Log in</x-forms.button>
     </x-forms.form>
+
+    <a href="/auth/redirect">Log in with Github</a>
 </x-layout>
